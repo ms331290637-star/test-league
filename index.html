@@ -173,13 +173,9 @@
 const { useState, useEffect, useRef, useCallback } = React;
 
 /* ─────────────────────────────────────────────
-   STYLING CONFIG MAPS
+   STATIC DATA POOLS (CLEAN PRIMITIVES FOR ZERO GLITCHES)
 ───────────────────────────────────────────── */
-const TEAMS = [
-  { id:1, name:"Team Royals", short:"TR", logo: <Crest short="TR" sz={70} />, tagline:"Reign Supreme.", primary:"#4c0519", accent:"#fbbf24", history:"The crown jewel of the league. Team Royals built their identity on elegance and dominance. Boasting the most consistent batting lineup in history, their philosophy of aggressive all-out attacking cricket has never wavered. They remain the benchmark franchise every rival strives to match.", wins:24, losses:10, titles:2, wl:[1,1,0,1,1,0,1,1,1,0,1,1] },
-  { id:2, name:"Team Red Eagles", short:"RE", logo: <Crest short="RE" sz={70} />, tagline:"Soar Above.", primary:"#1a0505", accent:"#ef4444", history:"Team Red Eagles are synonymous with dramatic never-say-die victories. Renowned for their fierce fast-bowling cartels and electrifying fielding, they have built their identity on backing the impossible. Their robust scouting network has produced a stream of breakout talent.", wins:20, losses:14, titles:1, wl:[0,1,1,0,1,1,0,0,1,1,1,0] },
-  { id:3, name:"Team Kashmir Warriors", short:"KW", logo: <Crest short="KW" sz={70} />, tagline:"Fearless & Fierce.", primary:"#062f17", accent:"#34d399", history:"Widely regarded as the most tactically astute franchise in the competition. The Warriors blend raw, fearless young talent from the mountains with seasoned experience. Their home surface is the most feared in the league and their preparation is the envy of rival coaching staffs.", wins:18, losses:16, titles:1, wl:[0,0,1,1,1,0,1,1,0,1,0,1] },
-];
+const INITIAL_PURSE = 10000000; 
 
 const PLAYERS = [
   { id:1, name:"Saad",              role:"Batsman",       photo:"https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=300&auto=format&fit=crop", bio:"An incredibly technical opening batsman equipped with supreme patience and an elite cover drive. A proven cornerstone player.", stats:{ m:42, hs:134, sr:138.2 }, base:500000, grad:"from-neutral-900 to-cyan-950" },
@@ -194,15 +190,21 @@ const PLAYERS = [
   { id:10,name:"Kabeer",            role:"Batsman",       photo:"https://images.unsplash.com/photo-1566492031773-4f4e44671857?q=80&w=300&auto=format&fit=crop", bio:"A wildly dynamic, highly inventive stroke-player utilizing unorthodox boundary targets to create immediate defensive crises.", stats:{ m:34, hs:98,  sr:149.3 }, base:500000, grad:"from-neutral-900 to-yellow-950" }
 ];
 
+const TEAMS = [
+  { id:1, name:"Team Royals", short:"TR", tagline:"Reign Supreme.", primary:"#4c0519", accent:"#fbbf24", history:"The crown jewel of the league. Team Royals built their identity on elegance and dominance. Boasting the most consistent batting lineup in history, their philosophy of aggressive all-out attacking cricket has never wavered. They remain the benchmark franchise every rival strives to match.", wins:24, losses:10, titles:2, wl:[1,1,0,1,1,0,1,1,1,0,1,1] },
+  { id:2, name:"Team Red Eagles", short:"RE", tagline:"Soar Above.", primary:"#1a0505", accent:"#ef4444", history:"Team Red Eagles are synonymous with dramatic never-say-die victories. Renowned for their fierce fast-bowling cartels and electrifying fielding, they have built their identity on backing the impossible. Their robust scouting network has produced a stream of breakout talent.", wins:20, losses:14, titles:1, wl:[0,1,1,0,1,1,0,0,1,1,1,0] },
+  { id:3, name:"Team Kashmir Warriors", short:"KW", tagline:"Fearless & Fierce.", primary:"#062f17", accent:"#34d399", history:"Widely regarded as the most tactically astute franchise in the competition. The Warriors blend raw, fearless young talent from the mountains with seasoned experience. Their home surface is the most feared in the league and their preparation is the envy of rival coaching staffs.", wins:18, losses:16, titles:1, wl:[0,0,1,1,1,0,1,1,0,1,0,1] },
+];
+
 const CHAMPS = [
-  { season:4, year:2023, winner:"Team Royals",          wS:"TR", runnerUp:"Team Red Eagles",         result:"Royals won by 7 wickets", star:"Muzzumil", starNote:"524 runs & 18 wkts in the tournament", highlight:"A dominant campaign setting a league NRR record. Ten wins from twelve games — a masterclass in total cricket.", bg:"rgba(76,5,25,0.28)", border:"rgba(251,191,36,0.22)" },
-  { season:3, year:2022, winner:"Team Kashmir Warriors", wS:"KW", runnerUp:"Team Royals",             result:"Kashmir won by 18 runs",  star:"Saqib",    starNote:"8 wickets in the final week alone",    highlight:"Maiden title. The Warriors' bowling attack was near-unplayable on the turner, restricting Royals to 30 runs under par.", bg:"rgba(6,47,23,0.28)", border:"rgba(16,185,129,0.22)" },
-  { season:2, year:2021, winner:"Team Red Eagles",       wS:"RE", runnerUp:"Team Kashmir Warriors",   result:"Eagles won by 4 wickets", star:"Saad",     starNote:"197* in the playoffs — a record",      highlight:"The most iconic chase in league history. Needing 12 off the last over, Eagles pulled off the improbable and cemented their legacy.", bg:"rgba(10,10,10,0.45)", border:"rgba(239,68,68,0.22)"  },
+  { season:4, year:2023, winner:"Team Royals", wS:"TR", runnerUp:"Team Red Eagles", result:"Royals won by 7 wickets", star:"Muzzumil", starNote:"524 runs & 18 wkts in the tournament", highlight:"A dominant campaign setting a league NRR record. Ten wins from twelve games — a masterclass in total cricket.", bg:"rgba(76,5,25,0.28)", border:"rgba(251,191,36,0.22)" },
+  { season:3, year:2022, winner:"Team Kashmir Warriors", wS:"KW", runnerUp:"Team Royals", result:"Kashmir won by 18 runs", star:"Saqib", starNote:"8 wickets in the final week alone", highlight:"Maiden title. The Warriors' bowling attack was unplayable on the turner, restricting Royals to 30 runs under par.", bg:"rgba(6,47,23,0.28)", border:"rgba(16,185,129,0.22)" },
+  { season:2, year:2021, winner:"Team Red Eagles", wS:"RE", runnerUp:"Team Kashmir Warriors", result:"Eagles won by 4 wickets", star:"Saad", starNote:"197* in the playoffs — a record", highlight:"The most iconic chase in league history. Needing 12 off the last over, Eagles pulled off the improbable and cemented their legacy.", bg:"rgba(10,10,10,0.45)", border:"rgba(239,68,68,0.22)" },
 ];
 
 const HISTORY = [
-  { year:2019, title:"The Inception",      desc:"Test League was conceptualized by Talha Riaz to create an elite, highly competitive franchise cricket ecosystem where raw athletic supremacy meets high-stakes operational planning." },
-  { year:2020, title:"Inaugural Draft",    desc:"The first player auction drafted 10 contracted athletes. Team Royals claimed the inaugural trophy in a packed, electric atmosphere that set the tone for seasons to come." },
+  { year:2019, title:"The Inception", desc:"Test League was conceptualized by Talha Riaz to create an elite, highly competitive franchise cricket ecosystem where raw athletic supremacy meets high-stakes operational planning." },
+  { year:2020, title:"Inaugural Draft", desc:"The first player auction drafted 10 contracted athletes. Team Royals claimed the inaugural trophy in a packed, electric atmosphere that set the tone for seasons to come." },
   { year:2023, title:"The Invitation Era", desc:"TEST LEAGUE elevated into an ultra-exclusive private tournament circuit. Admission guidelines were tightened to feature only verified, premier-tier athletic profiles. A new era of excellence began." },
 ];
 
@@ -212,8 +214,11 @@ const BG = [
   "https://images.unsplash.com/photo-1587280501635-68a0e82cd5ff?q=80&w=2000&auto=format&fit=crop",
 ];
 
+const fmt   = n  => `₹${n.toLocaleString('en-IN')}`;
+const incr  = v  => v < 1000000 ? 50000 : v < 3000000 ? 100000 : 200000;
+
 /* ─────────────────────────────────────────────
-   VECTOR TEAM CRESTS
+   COMPACT VECTOR CRESTS HOISTED
 ───────────────────────────────────────────── */
 function Crest({ short, sz = 80 }) {
   if (short === 'TR') {
@@ -247,7 +252,7 @@ function Crest({ short, sz = 80 }) {
 }
 
 /* ─────────────────────────────────────────────
-   MOTION BACKDROP ENGINE
+   MOTION BACKDROP CONTROLLER
 ───────────────────────────────────────────── */
 function MotionBg() {
   const [slide, setSlide] = useState(0);
@@ -267,7 +272,7 @@ function MotionBg() {
 }
 
 /* ─────────────────────────────────────────────
-   NAVIGATION CAP INTERFACES[cite: 2]
+   CAPSULE NAV ENGINE[cite: 2]
 ───────────────────────────────────────────── */
 function Nav({ tab, setTab }) {
   const tabs = [
@@ -304,7 +309,7 @@ function Nav({ tab, setTab }) {
 }
 
 /* ─────────────────────────────────────────────
-   HERO / HOME STAGE VIEW (image 1.webp)[cite: 2]
+   HERO / HOME HERO LANDING VIEW (image 1.webp)[cite: 2]
 ───────────────────────────────────────────── */
 function HeroView({ setTab }) {
   return (
@@ -341,7 +346,7 @@ function HeroView({ setTab }) {
 }
 
 /* ─────────────────────────────────────────────
-   LEGACY OVERVIEW VIEW (ABOUT / MANAGEMENT)
+   LEGACY OVERVIEW VIEW (ABOUT / FIXED MANAGEMENT DECK)[cite: 2]
 ───────────────────────────────────────────── */
 function AboutView() {
   return (
@@ -351,9 +356,9 @@ function AboutView() {
         <p className="text-gray-400 max-w-xl mx-auto text-sm sm:text-base font-light leading-relaxed">An elite invitation-only framework engineering the standard of modern franchise cricket.</p>
       </div>
 
-      {/* EXECUTIVE TEAM SUITE SECTION */}
+      {/* EXECUTIVE CORPORATE BOARD MODULES */}
       <div className="space-y-12 sm:space-y-16 mb-24">
-        {/* LEAGUE OWNER PROFILE: Talha Riaz */}
+        {/* PROFILE 1: Talha Riaz */}
         <div className="glass rounded-2xl sm:rounded-3xl overflow-hidden lift fade-up" style={{ animationDelay:'.1s' }}>
           <div className="flex flex-col md:flex-row">
             <div className="md:w-5/12 h-64 sm:h-80 md:h-[380px] relative overflow-hidden flex-shrink-0">
@@ -364,13 +369,13 @@ function AboutView() {
             <div className="p-6 sm:p-8 md:p-10 md:w-7/12 flex flex-col justify-center">
               <span className="font-brand text-[8px] sm:text-[9px] text-yellow-500 tracking-[0.2em] sm:tracking-[0.3em] block mb-2 sm:mb-3">FOUNDER & EXECUTIVE LEAGUE OWNER</span>
               <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-3 sm:mb-4">Talha Riaz</h2>
-              <div className="inline-flex items-center gap-2 bg-cyan-500/10 text-cyan-400 text-[10px] sm:text-xs tracking-wider uppercase font-semibold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-cyan-500/20 mb-5 sm:mb-6 w-max">⚡ Right-Arm Fast Bowler</div>
+              <div className="inline-flex items-center gap-2 bg-cyan-500/10 text-cyan-400 text-[10px] sm:text-xs tracking-wider uppercase font-semibold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-cyan-500/20 mb-5 sm:mb-6 w-max">A Right-Arm Fast Bowler</div>
               <p className="text-gray-400 text-sm sm:text-base leading-relaxed italic font-light">"TEST LEAGUE was structured to fulfill a singular commitment: designing a private, prestigious matrix where raw athletic supremacy meets high-stakes operational planning. We ensure elite visibility across every single delivery."</p>
             </div>
           </div>
         </div>
 
-        {/* GENERAL MANAGER PROFILE: Muhammad Muzammil VERBATIM image_c3d67f.jpg */}
+        {/* PROFILE 2: Muhammad Muzammil Verbatim image_c3d67f.jpg */}
         <div className="glass rounded-2xl sm:rounded-3xl overflow-hidden lift fade-up" style={{ animationDelay:'.25s' }}>
           <div className="flex flex-col md:flex-row">
             <div className="md:w-5/12 h-64 sm:h-80 md:h-[380px] relative overflow-hidden flex-shrink-0">
@@ -381,14 +386,14 @@ function AboutView() {
             <div className="p-6 sm:p-8 md:p-10 md:w-7/12 flex flex-col justify-center">
               <span className="font-brand text-[8px] sm:text-[9px] text-cyan-400 tracking-[0.2em] sm:tracking-[0.3em] block mb-2 sm:mb-3">GENERAL MANAGER</span>
               <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-3 sm:mb-4">Muhammad Muzammil</h2>
-              <div className="inline-flex items-center gap-2 bg-violet-500/10 text-violet-400 text-[10px] sm:text-xs tracking-wider uppercase font-semibold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-violet-500/20 mb-5 sm:mb-6 w-max">🏏 All-Rounder</div>
+              <div className="inline-flex items-center gap-2 bg-violet-500/10 text-violet-400 text-[10px] sm:text-xs tracking-wider uppercase font-semibold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-violet-500/20 mb-5 sm:mb-6 w-max">🏏 An All-Rounder</div>
               <p className="text-gray-400 text-sm sm:text-base leading-relaxed italic font-light">"Commanding structural integration across operations, player coordination, and franchise relations. Bringing elite all-round on-field expertise to executive system governance to preserve absolute competitive parity across the draft board."</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* History Chronology Line */}
+      {/* Chronological Timeline History */}
       <div className="relative">
         <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px" style={{ background:'linear-gradient(to bottom,rgba(6,182,212,.45),rgba(234,179,8,.2),transparent)' }} />
         <div className="space-y-8 sm:space-y-14">
@@ -413,7 +418,7 @@ function AboutView() {
 }
 
 /* ─────────────────────────────────────────────
-   ROSTER VIEW MATRIX DIRECTORY[cite: 2]
+   PLAYER DIRECTORY ROSTER INDEX[cite: 2]
 ───────────────────────────────────────────── */
 function PlayerCard({ p }) {
   return (
@@ -454,7 +459,7 @@ function PlayersView() {
 }
 
 /* ─────────────────────────────────────────────
-   FRANCHISE FRONTS
+   FRANCHISE FRONTS CORES[cite: 2]
 ───────────────────────────────────────────── */
 function WLBar({ wl }) {
   return (
@@ -505,7 +510,7 @@ function TeamsView() {
 }
 
 /* ─────────────────────────────────────────────
-   CHAMPIONS HISTORICAL ANTHOLOGY
+   CHAMPIONS ARCHIVE HISTORICAL SHEET[cite: 2]
 ───────────────────────────────────────────── */
 function ChampionsView() {
   return (
@@ -545,7 +550,7 @@ function ChampionsView() {
 }
 
 /* ─────────────────────────────────────────────
-   AUCTION — INTERACTIVE OPERATION CORE
+   AUCTION PLATFORM BOARD SYSTEM
 ───────────────────────────────────────────── */
 function AuctionView({ as, setAs }) {
   const [subTab,   setSubTab]   = useState('block');
@@ -701,14 +706,14 @@ function AuctionView({ as, setAs }) {
                 <div className="font-display font-black text-4xl sm:text-5xl tracking-tight break-all" style={{ color:'#22d3ee', lineHeight:1 }}>{fmt(liveBid)}</div>
               </div>
 
-              <button onClick={handleBid} disabled={isSold || isPassed} className="w-full py-3.5 sm:py-4 rounded-xl font-brand text-[10px] sm:text-[11px] text-black tracking-widest font-bold disabled:opacity-20" style={{ background:'linear-gradient(135deg,#06b6d4,#0284c7)' }}>⬆ COMMAND RAISE</button>
+              <button onClick={handleBid} disabled={isSold || isPassed} className="w-full py-3.5 sm:py-4 rounded-xl font-brand text-[10px] sm:text-[11px] text-black tracking-widest font-bold disabled:opacity-20" style={{ background='linear-gradient(135deg,#06b6d4,#0284c7)' }}>⬆ COMMAND RAISE</button>
               <div className="grid grid-cols-2 gap-2 sm:gap-3">
                 <button onClick={() => setModal(true)} disabled={isSold || isPassed} className="py-3 sm:py-3.5 rounded-xl font-brand text-[9px] sm:text-[10px] tracking-widest border border-green-500/30 text-green-400 disabled:opacity-20">🔨 HAMMER</button>
                 <button onClick={handlePass} disabled={isSold || isPassed} className="py-3 sm:py-3.5 rounded-xl font-brand text-[9px] sm:text-[10px] tracking-widest border border-red-500/30 text-red-400 disabled:opacity-20">PASS</button>
               </div>
 
               {(isSold || isPassed) && (
-                <button onClick={() => resetBiddingChannel()} className="w-full py-3 sm:py-3.5 rounded-xl font-brand text-[9px] sm:text-[10px] text-white tracking-widest mt-1" style={{ background:'rgba(255,255,255,.05)', border:'1px solid rgba(255,255,255,.09)' }}>ADVANCE SEQUENCE ⏭</button>
+                <button onClick={() => setCurBid(null)||setIsSold(false)||setWinnerId(null)||setIsPassed(false)} className="w-full py-3 sm:py-3.5 rounded-xl font-brand text-[9px] sm:text-[10px] text-white tracking-widest mt-1" style={{ background:'rgba(255,255,255,.05)', border:'1px solid rgba(255,255,255,.09)' }}>ADVANCE SEQUENCE ⏭</button>
               )}
 
               {soldCount > 0 && (
@@ -784,7 +789,7 @@ function AuctionView({ as, setAs }) {
 }
 
 /* ─────────────────────────────────────────────
-   APPLICATION ORCHESTRATION LAYER[cite: 2]
+   GLOBAL APP CONTAINER EXECUTION LAYER[cite: 2]
 ───────────────────────────────────────────── */
 function App() {
   const [tab, setTab] = useState('home');
