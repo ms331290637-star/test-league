@@ -20,7 +20,7 @@
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-    /* ── CINEMATIC MOTION BACKGROUND ── */
+    /* ── CINEMATIC BACKGROUND SYSTEM ── */
     .bg-shell {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
       z-index: -2; overflow: hidden; background: #020204;
@@ -53,7 +53,24 @@
       .orb-cyan { width:52vw; height:52vw; left:-6%; bottom:-10%; }
     }
 
-    /* ── HERO SPECIFIC ANIMATIONS ── */
+    /* ── DYNAMIC HERO BACKGROUND ENGINE (image 1.webp) ── */
+    .hero-field-motion {
+      position: absolute;
+      top: -10%; left: -10%; width: 120%; height: 120%;
+      background-image: url('image 1.webp');
+      background-size: cover;
+      background-position: center 40%;
+      filter: brightness(32%) contrast(120%) saturate(75%);
+      animation: sweepFieldCamera 28s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 0;
+    }
+    @keyframes sweepFieldCamera {
+      0% { transform: scale(1.0) translate(0, 0) rotate(0deg); }
+      50% { transform: scale(1.06) translate(-2%, -1%) rotate(0.5deg); }
+      100% { transform: scale(1.12) translate(-4%, -2%) rotate(-0.5deg); }
+    }
+
+    /* ── HERO TEXT ZERO-GRAVITY FLOAT ── */
     @keyframes float {
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-12px); }
@@ -156,7 +173,7 @@
 const { useState, useEffect, useRef, useCallback } = React;
 
 /* ════════════════════════════════════════
-   DATA
+   DATA REGISTER
 ════════════════════════════════════════ */
 const INITIAL_PURSE = 10000000;
 
@@ -192,7 +209,7 @@ const CHAMPS = [
 ];
 
 const HISTORY = [
-  { year:2019, title:"The Inception",      desc:"Test League was conceptualized to create an elite, highly competitive franchise cricket ecosystem where raw athletic supremacy meets high-stakes operational planning." },
+  { year:2019, title:"The Inception",      desc:"Test League was conceptualized by Talha Riaz to create an elite, highly competitive franchise cricket ecosystem where raw athletic supremacy meets high-stakes operational planning." },
   { year:2020, title:"Inaugural Draft",    desc:"The first player auction drafted 10 contracted athletes. Team Royals claimed the inaugural trophy in a packed, electric atmosphere that set the tone for seasons to come." },
   { year:2023, title:"The Invitation Era", desc:"TEST LEAGUE elevated into an ultra-exclusive private tournament circuit. Admission guidelines were tightened to feature only verified, premier-tier athletic profiles. A new era of excellence began." },
 ];
@@ -203,20 +220,11 @@ const BG = [
   "https://images.unsplash.com/photo-1587280501635-68a0e82cd5ff?q=80&w=2000&auto=format&fit=crop",
 ];
 
-const ROLE_BADGE = {
-  'Batsman':       'bg-sky-500/20 text-sky-200 border-sky-500/40',
-  'All-Rounder':   'bg-violet-500/20 text-violet-200 border-violet-500/40',
-  'Fast Bowler':   'bg-emerald-500/20 text-emerald-200 border-emerald-500/40',
-  'Wicket-Keeper': 'bg-orange-500/20 text-orange-200 border-orange-500/40',
-  'Spin Bowler':   'bg-teal-500/20 text-teal-200 border-teal-500/40',
-  'Finisher':      'bg-red-500/20 text-red-200 border-red-500/40',
-};
-
 const fmt   = n  => `₹${n.toLocaleString('en-IN')}`;
 const incr  = v  => v < 1000000 ? 50000 : v < 3000000 ? 100000 : 200000;
 
 /* ════════════════════════════════════════
-   SVG TEAM CRESTS
+   CRESTS LOGO COMPONENT
 ════════════════════════════════════════ */
 function LogoRoyals({ sz = 80 }) {
   return (
@@ -253,7 +261,7 @@ function Crest({ short, sz = 80 }) {
 }
 
 /* ════════════════════════════════════════
-   MOTION BACKGROUND
+   APP SHELL MOTION BACKDROP
 ════════════════════════════════════════ */
 function MotionBg() {
   const [slide, setSlide] = useState(0);
@@ -274,7 +282,7 @@ function MotionBg() {
 }
 
 /* ════════════════════════════════════════
-   NAVIGATION
+   MAIN CAPSULE HEAD NAV BAR[cite: 2]
 ════════════════════════════════════════ */
 function Nav({ tab, setTab }) {
   const tabs = [
@@ -288,7 +296,6 @@ function Nav({ tab, setTab }) {
   return (
     <div className="max-w-7xl mx-auto px-3 sm:px-6 pt-4 sm:pt-5 sticky top-0 z-50">
       <div className="glass rounded-xl sm:rounded-2xl px-3 sm:px-6 flex items-center justify-between h-[60px] sm:h-[72px]">
-        {/* Clickable Logo routes to Home */}
         <div onClick={() => setTab('home')} className="flex items-center gap-2 sm:gap-4 flex-shrink-0 cursor-pointer group">
           <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl flex items-center justify-center font-display font-bold text-black text-xs sm:text-base logo-pulse border border-transparent group-hover:scale-105 transition-transform"
                style={{ background:'linear-gradient(135deg,#06b6d4,#eab308)' }}>
@@ -299,7 +306,6 @@ function Nav({ tab, setTab }) {
             <div className="text-[7px] sm:text-[9px] text-gray-500 tracking-[0.2em] sm:tracking-[0.38em] uppercase mt-1">Private Circuit</div>
           </div>
         </div>
-        
         <div className="flex items-center h-full overflow-x-auto no-scrollbar gap-2 sm:gap-2 pb-0 flex-1 justify-end">
           {tabs.map(t => (
             <button key={t.id} onClick={() => setTab(t.id)}
@@ -315,36 +321,43 @@ function Nav({ tab, setTab }) {
 }
 
 /* ════════════════════════════════════════
-   HERO / HOME VIEW (NEW)
+   HERO / HOME STAGE VIEW[cite: 2]
+   DYNAMICALLY DEPLOYS image 1.webp Verbatim
 ════════════════════════════════════════ */
 function HeroView({ setTab }) {
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-100px)] px-4 fade-up overflow-hidden">
+    <div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-100px)] px-4 fade-up overflow-hidden rounded-3xl mt-4 max-w-7xl mx-auto border border-white/5">
       
-      {/* Animated Background Radar Rings */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-60">
-        <div className="absolute w-[280px] h-[280px] sm:w-[450px] sm:h-[450px] rounded-full border-[1px] border-cyan-500/30 border-t-cyan-400 border-b-transparent animate-spin-slow" />
-        <div className="absolute w-[220px] h-[220px] sm:w-[350px] sm:h-[350px] rounded-full border-[2px] border-dashed border-yellow-500/40 animate-spin-slow-reverse" />
-        <div className="absolute w-[380px] h-[380px] sm:w-[600px] sm:h-[600px] rounded-full border-[1px] border-white/5 border-l-white/20 animate-spin-slow" style={{ animationDuration: '30s' }} />
+      {/* ── image 1.webp Cinematic Camera Sweeping Lens ── */}
+      <div className="hero-field-motion" />
+
+      {/* Luxury Vignette and Contrast Masking */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#020204] via-[#020204]/40 to-transparent z-0 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#020204]/60 via-transparent to-[#020204]/60 z-0 pointer-events-none" />
+
+      {/* Active Radar Vectors Overlay */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-40 z-10">
+        <div className="absolute w-[280px] h-[280px] sm:w-[450px] sm:h-[450px] rounded-full border-[1px] border-cyan-500/20 border-t-cyan-400 border-b-transparent animate-spin-slow" />
+        <div className="absolute w-[220px] h-[220px] sm:w-[350px] sm:h-[350px] rounded-full border-[2px] border-dashed border-yellow-500/30 animate-spin-slow-reverse" />
       </div>
 
-      {/* Floating Center Content */}
-      <div className="z-10 text-center animate-float w-full max-w-4xl mx-auto">
-        <div className="inline-block mb-4 sm:mb-6 px-4 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 backdrop-blur-md">
-          <span className="font-brand text-[8px] sm:text-[10px] text-cyan-400 tracking-[0.3em]">WELCOME TO THE VIP CIRCUIT</span>
+      {/* Floating Center Identity Panel[cite: 2] */}
+      <div className="z-10 text-center animate-float w-full max-w-4xl mx-auto px-2 sm:px-6">
+        <div className="inline-block mb-4 sm:mb-6 px-4 py-1.5 rounded-full border border-cyan-500/30 bg-black/60 backdrop-blur-md">
+          <span className="font-brand text-[8px] sm:text-[10px] text-cyan-400 tracking-[0.3em]">EXCLUSIVITY CONFIRMED • PRIVATE CIRCUIT</span>
         </div>
         
-        <h1 className="font-brand text-5xl sm:text-7xl md:text-8xl text-white tracking-widest drop-shadow-[0_0_30px_rgba(6,182,212,0.4)] mb-4 leading-tight">
+        <h1 className="font-brand text-5xl sm:text-7xl md:text-8xl text-white tracking-widest drop-shadow-[0_0_35px_rgba(4,6,14,0.9)] mb-4 leading-none font-black">
           TEST <br className="sm:hidden" />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-amber-600">LEAGUE</span>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-yellow-200 to-amber-600">LEAGUE</span>
         </h1>
         
-        <p className="text-gray-400 font-light tracking-wide max-w-xl mx-auto text-xs sm:text-sm md:text-base mb-10 sm:mb-12 px-2">
-          The absolute pinnacle of private franchise cricket. Elite rosters, unlimited stakes, and unparalleled operational prestige.
+        <p className="text-gray-200 font-light tracking-wide max-w-xl mx-auto text-xs sm:text-sm md:text-base mb-10 sm:mb-12 bg-black/40 p-4 rounded-xl backdrop-blur-sm border border-white/5 leading-relaxed">
+          The absolute pinnacle of private franchise cricket. Elite rosters, unlimited stakes, and unparalleled operational prestige managed by Talha Riaz.
         </p>
         
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full px-8 sm:px-0">
-          <button onClick={() => setTab('auction')} className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl font-brand text-[10px] sm:text-xs text-white tracking-widest hover:scale-105 transition-transform shadow-[0_0_20px_rgba(6,182,212,0.4)]">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full max-w-md mx-auto px-4 sm:px-0">
+          <button onClick={() => setTab('auction')} className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-700 text-black font-brand font-bold text-[10px] sm:text-xs text-white tracking-widest hover:scale-105 transition-transform shadow-[0_10px_25px_rgba(6,182,212,0.4)] rounded-xl">
             ENTER LIVE DRAFT
           </button>
           <button onClick={() => setTab('about')} className="w-full sm:w-auto px-8 py-4 glass rounded-xl font-brand text-[10px] sm:text-xs text-white tracking-widest hover:border-yellow-500/50 transition-colors">
@@ -356,10 +369,9 @@ function HeroView({ setTab }) {
   );
 }
 
-
-/* ════════════════════════════════════════
-   ABOUT VIEW
-════════════════════════════════════════ */
+/* ─────────────────────────────────────────────
+   LEGACY OVERVIEW VIEW[cite: 2]
+───────────────────────────────────────────── */
 function AboutView() {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
@@ -372,7 +384,6 @@ function AboutView() {
         </p>
       </div>
 
-      {/* Founder card */}
       <div className="mb-16 sm:mb-24 fade-up" style={{ animationDelay:'.15s' }}>
         <div className="glass rounded-2xl sm:rounded-3xl overflow-hidden lift">
           <div className="flex flex-col md:flex-row">
@@ -398,7 +409,6 @@ function AboutView() {
         </div>
       </div>
 
-      {/* Timeline */}
       <div className="relative">
         <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px"
              style={{ background:'linear-gradient(to bottom,rgba(6,182,212,.45),rgba(234,179,8,.2),transparent)' }} />
@@ -408,9 +418,7 @@ function AboutView() {
                  style={{ animationDelay:`${i*.15}s` }}>
               <div className={`w-full md:w-5/12 ${i%2===0 ? 'md:pr-14 md:text-right' : 'md:order-3 md:pl-14'}`}>
                 <div className="glass p-5 sm:p-7 rounded-2xl lift relative pl-10 sm:pl-7">
-                  {/* Mobile Dot */}
                   <div className="md:hidden absolute left-4 top-6 w-3 h-3 rounded-full bg-cyan-400 shadow-[0_0_8px_#06b6d4]"></div>
-                  
                   <span className="font-brand text-[9px] text-cyan-400 tracking-widest mb-1.5 block">{item.year}</span>
                   <h3 className="text-lg sm:text-xl font-bold text-white mb-2">{item.title}</h3>
                   <p className="text-gray-400 text-xs sm:text-sm font-light leading-relaxed">{item.desc}</p>
@@ -428,13 +436,13 @@ function AboutView() {
   );
 }
 
-/* ════════════════════════════════════════
-   PLAYER LIST VIEW
-════════════════════════════════════════ */
+/* ─────────────────────────────────────────────
+   ROSTER DIRECTORY REGISTRY[cite: 2]
+───────────────────────────────────────────── */
 function PlayerCard({ p }) {
   return (
     <div className="lift glass rounded-2xl sm:rounded-3xl overflow-hidden flex flex-col border border-white/5">
-      <div className={`relative h-40 sm:h-48 bg-gradient-to-br ${p.grad} flex items-center justify-center`}>
+      <div className={`relative h-48 bg-gradient-to-br ${p.grad} flex items-center justify-center`}>
         <div className="absolute inset-0 opacity-10"
              style={{ backgroundImage:'radial-gradient(circle at 2px 2px,white 1px,transparent 0)', backgroundSize:'18px 18px' }} />
         <img src={p.photo} alt={p.name}
@@ -477,9 +485,9 @@ function PlayersView() {
   );
 }
 
-/* ════════════════════════════════════════
-   TEAMS VIEW
-════════════════════════════════════════ */
+/* ─────────────────────────────────────────────
+   FRANCHISE BRAND MATRICES[cite: 2]
+───────────────────────────────────────────── */
 function WLBar({ wl }) {
   return (
     <div className="flex gap-0.5 h-1.5 sm:h-2 rounded-full overflow-hidden">
@@ -509,7 +517,7 @@ function TeamsView() {
             </div>
             <div className="p-5 sm:p-6 flex-1 flex flex-col">
               <p className="text-gray-400 text-xs sm:text-sm font-light leading-relaxed mb-4 sm:mb-5 flex-1">{t.history}</p>
-              <div className="rounded-xl p-3 sm:p-4 border border-white/5" style={{ background:'rgba(0,0,0,.45)' }}>
+              <div className="rounded-xl p-3 sm:p-4 border border-white/5" style={{ background='rgba(0,0,0,.45)' }}>
                 <div className="flex justify-around items-center mb-3 sm:mb-4">
                   {[['Wins',t.wins,'text-green-400'],[`🏆 ${t.titles}`,'Titles','text-yellow-400'],['Losses',t.losses,'text-red-400']].map(([v,l,c],i)=>(
                     <div key={i} className="text-center">
@@ -529,9 +537,9 @@ function TeamsView() {
   );
 }
 
-/* ════════════════════════════════════════
-   CHAMPIONS VIEW
-════════════════════════════════════════ */
+/* ─────────────────────────────────────────────
+   CHAMPIONS ARCHIVE VIEW[cite: 2]
+───────────────────────────────────────────── */
 function ChampionsView() {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
@@ -552,7 +560,7 @@ function ChampionsView() {
                 <div>
                   <div className="font-brand text-[8px] sm:text-[9px] text-yellow-500 tracking-widest mb-0.5">YEAR {c.year}</div>
                   <div className="flex items-center gap-2 mb-0.5">
-                    <Crest short={c.wS} sz={22} />
+                    < Crest short={c.wS} sz={22} />
                     <h3 className="text-lg sm:text-xl font-bold text-white leading-tight">{c.winner}</h3>
                   </div>
                   <div className="text-[10px] sm:text-xs text-gray-500 mt-1">Runner-up: <span className="text-gray-300">{c.runnerUp}</span></div>
@@ -560,7 +568,7 @@ function ChampionsView() {
                 </div>
               </div>
               <div className="glass rounded-xl p-3 sm:p-4 border border-white/8 text-left sm:text-right flex-shrink-0 mt-2 sm:mt-0"
-                   style={{ minWidth:'auto sm:minWidth:185px' }}>
+                   style={{ minWidth:'185px' }}>
                 <div className="font-brand text-[7px] sm:text-[8px] text-gray-500 tracking-widest block mb-0.5">TOURNAMENT MVP</div>
                 <div className="font-medium text-white text-xs sm:text-sm">{c.star}</div>
                 <div className="text-[10px] sm:text-xs text-yellow-400/80 mt-0.5">{c.starNote}</div>
@@ -574,9 +582,9 @@ function ChampionsView() {
   );
 }
 
-/* ════════════════════════════════════════
-   AUCTION — ADMIN CONTROL PANEL
-════════════════════════════════════════ */
+/* ─────────────────────────────────────────────
+   AUCTION MASTER CONTROLLER PANEL[cite: 2]
+───────────────────────────────────────────── */
 function AuctionView({ as, setAs }) {
   const [subTab,   setSubTab]   = useState('block');
   const [curBid,   setCurBid]   = useState(null);
@@ -661,7 +669,6 @@ function AuctionView({ as, setAs }) {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 fade-up">
-      {/* Sub-header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-4 mb-6 sm:mb-8 pb-4 sm:pb-5"
            style={{ borderBottom:'1px solid rgba(255,255,255,0.07)' }}>
         <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto overflow-x-auto no-scrollbar pb-1 sm:pb-0">
@@ -688,7 +695,6 @@ function AuctionView({ as, setAs }) {
         </div>
       </div>
 
-      {/* ── CONTROL PANEL ── */}
       {subTab === 'block' && (
         auctionDone ? (
           <div className="max-w-md mx-auto text-center py-16 sm:py-20 px-4">
@@ -703,8 +709,6 @@ function AuctionView({ as, setAs }) {
           </div>
         ) : !player ? null : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
-
-            {/* Player Feature Card */}
             <div className="lg:col-span-2 glass rounded-2xl sm:rounded-3xl overflow-hidden border border-white/5">
               <div className={`relative h-64 sm:h-80 bg-gradient-to-b ${player.grad} flex items-center justify-center`}>
                 <div className="absolute inset-0 opacity-10"
@@ -722,16 +726,13 @@ function AuctionView({ as, setAs }) {
                     UNSOLD POOL
                   </div>
                 )}
-                {/* Overlay: SOLD or PASSED */}
                 {(isSold || isPassed) && (
                   <div className="absolute inset-0 flex items-center justify-center z-20"
                        style={{ background:'rgba(0,0,0,.78)', backdropFilter:'blur(4px)' }}>
                     {isSold ? (
                       <div className="sold-in flex flex-col items-center gap-1 sm:gap-1.5">
                         <div className="font-brand text-red-500 px-4 sm:px-5 py-1.5 sm:py-2 rounded-xl text-5xl sm:text-[4rem] leading-none"
-                             style={{ letterSpacing:'0.1em',
-                                      border:'4px solid rgba(239,68,68,.85)',
-                                      filter:'drop-shadow(0 0 24px rgba(239,68,68,.7))' }}>
+                             style={{ letterSpacing:'0.1em', border:'4px solid rgba(239,68,68,.85)', filter:'drop-shadow(0 0 24px rgba(239,68,68,.7))' }}>
                           SOLD
                         </div>
                         <div className="font-brand text-[8px] sm:text-[10px] text-red-400 tracking-widest mt-1 sm:mt-0">
@@ -751,7 +752,6 @@ function AuctionView({ as, setAs }) {
                   </div>
                 )}
               </div>
-
               <div className="p-5 sm:p-8">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
                   <div>
@@ -772,10 +772,7 @@ function AuctionView({ as, setAs }) {
                 <p className="text-gray-400 text-xs sm:text-sm font-light leading-relaxed">{player.bio}</p>
               </div>
             </div>
-
-            {/* Bidding Panel */}
             <div className="flex flex-col gap-3 sm:gap-4">
-              {/* Live Bid display */}
               <div ref={bidRef} className="glass rounded-2xl p-5 sm:p-6 text-center"
                    style={{ borderTop:'2px solid rgba(6,182,212,.35)' }}>
                 <div className="font-brand text-[7px] sm:text-[8px] text-gray-500 tracking-widest block mb-2 sm:mb-3">CURRENT MAXIMUM BID</div>
@@ -786,15 +783,11 @@ function AuctionView({ as, setAs }) {
                   +{fmt(incr(liveBid))} PER RAISE
                 </div>
               </div>
-
-              {/* COMMAND RAISE */}
               <button onClick={handleBid} disabled={isSold || isPassed}
                       className="w-full py-3.5 sm:py-4 rounded-xl font-brand text-[10px] sm:text-[11px] text-black tracking-widest transition-all hover:brightness-110 active:scale-[0.97] disabled:opacity-20 disabled:cursor-not-allowed"
                       style={{ background:'linear-gradient(135deg,#06b6d4,#0284c7)', boxShadow:'0 8px 24px rgba(6,182,212,.3)' }}>
                 ⬆ COMMAND RAISE
               </button>
-
-              {/* HAMMER / PASS */}
               <div className="grid grid-cols-2 gap-2 sm:gap-3">
                 <button onClick={() => setModal(true)} disabled={isSold || isPassed}
                         className="py-3 sm:py-3.5 rounded-xl font-brand text-[9px] sm:text-[10px] tracking-widest border border-green-500/30 text-green-400 hover:bg-green-500/10 transition-all disabled:opacity-20 disabled:cursor-not-allowed">
@@ -805,8 +798,6 @@ function AuctionView({ as, setAs }) {
                   PASS
                 </button>
               </div>
-
-              {/* ADVANCE */}
               {(isSold || isPassed) && (
                 <button onClick={handleNext}
                         className="w-full py-3 sm:py-3.5 rounded-xl font-brand text-[9px] sm:text-[10px] text-white tracking-widest transition-all active:scale-95 mt-1"
@@ -814,8 +805,6 @@ function AuctionView({ as, setAs }) {
                   ADVANCE SEQUENCE ⏭
                 </button>
               )}
-
-              {/* Drafted list mobile accordion/stack */}
               {soldCount > 0 && (
                 <div className="glass rounded-xl sm:rounded-2xl overflow-hidden border border-white/5 mt-2 sm:mt-0">
                   <div className="px-3 sm:px-4 py-2 sm:py-2.5 flex items-center justify-between"
@@ -837,8 +826,6 @@ function AuctionView({ as, setAs }) {
                   </div>
                 </div>
               )}
-
-              {/* PDF button (Hidden on very small screens to save space, but kept for sm) */}
               <button onClick={handlePrint}
                       className="hidden sm:block w-full py-3 rounded-xl text-xs text-gray-500 hover:text-gray-300 transition-all"
                       style={{ background:'rgba(255,255,255,.03)', border:'1px solid rgba(255,255,255,.06)' }}>
@@ -849,7 +836,7 @@ function AuctionView({ as, setAs }) {
         )
       )}
 
-      {/* ── FRANCHISE LEDGERS ── */}
+      {/* Franchise Matrix Hub */}
       {subTab === 'franchise' && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
           {TEAMS.map(t => {
@@ -867,7 +854,6 @@ function AuctionView({ as, setAs }) {
                     <div className="text-[9px] sm:text-[10px] text-gray-600 mt-0.5">{d.playersAcquired.length} players · {fmt(spent)} spent</div>
                   </div>
                 </div>
-
                 <div className="px-4 sm:px-5 py-2.5 sm:py-3" style={{ borderBottom:'1px solid rgba(255,255,255,.05)' }}>
                   <div className="flex justify-between font-brand text-[7px] sm:text-[8px] text-gray-600 tracking-wider mb-1.5">
                     <span>PURSE UTILISED</span><span>{pct}%</span>
@@ -877,7 +863,6 @@ function AuctionView({ as, setAs }) {
                          style={{ width:`${pct}%`, background:`linear-gradient(90deg,${t.primary},${t.accent})` }} />
                   </div>
                 </div>
-
                 <div className="p-3 sm:p-4 max-h-56 sm:max-h-64 overflow-y-auto custom-scrollbar">
                   {d.playersAcquired.length > 0 ? (
                     <div className="space-y-1.5 sm:space-y-2">
@@ -901,7 +886,6 @@ function AuctionView({ as, setAs }) {
         </div>
       )}
 
-      {/* ── TEAM SELECTION MODAL ── */}
       {modal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
              style={{ background:'rgba(0,0,0,.88)', backdropFilter:'blur(14px)' }}>
@@ -948,9 +932,9 @@ function AuctionView({ as, setAs }) {
   );
 }
 
-/* ════════════════════════════════════════
-   APP
-════════════════════════════════════════ */
+/* ─────────────────────────────────────────────
+   APPLICATION ORCHESTRATION LAYER[cite: 2]
+───────────────────────────────────────────── */
 function App() {
   const [tab, setTab] = useState('home');
   const [as, setAs] = useState(() => {
