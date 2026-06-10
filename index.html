@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>TEST LEAGUE — Exclusive Private Circuit</title>
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
@@ -12,13 +12,17 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; overflow-x: hidden; background: #020204; color: #f8fafc; min-height: 100vh; }
-    body { font-family: 'Outfit', sans-serif; }
+    body { font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
     .font-brand   { font-family: 'Syncopate', sans-serif; }
     .font-display { font-family: 'Oswald', sans-serif; }
 
+    /* ── MOBILE SCROLLBAR HIDING ── */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
     /* ── CINEMATIC MOTION BACKGROUND ── */
     .bg-shell {
-      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
       z-index: -2; overflow: hidden; background: #020204;
     }
     .bg-slide {
@@ -37,11 +41,29 @@
     @keyframes panB { 0%{transform:scale(1.15) translate(2%,2%)} 100%{transform:scale(1.0) translate(-2%,-2%)} }
     @keyframes panC { 0%{transform:scale(1.06) translate(-2%,2%)} 100%{transform:scale(1.2) translate(2%,-3%)} }
 
-    .orb { position: absolute; border-radius: 50%; filter: blur(130px); pointer-events: none; }
-    .orb-gold { width:46vw; height:46vw; background:#eab308; top:-8%; right:8%; opacity:.16; animation:og 34s infinite alternate ease-in-out; }
-    .orb-cyan { width:52vw; height:52vw; background:#06b6d4; bottom:-10%; left:-6%; opacity:.10; animation:oc 27s infinite alternate ease-in-out; }
+    .orb { position: absolute; border-radius: 50%; filter: blur(100px); pointer-events: none; }
+    .orb-gold { width:60vw; height:60vw; background:#eab308; top:-10%; right:5%; opacity:.16; animation:og 34s infinite alternate ease-in-out; }
+    .orb-cyan { width:70vw; height:70vw; background:#06b6d4; bottom:-10%; left:-10%; opacity:.10; animation:oc 27s infinite alternate ease-in-out; }
     @keyframes og { to{transform:translate(5%,-5%) scale(1.2)} }
     @keyframes oc { to{transform:translate(-4%,4%) scale(0.9)} }
+
+    @media (min-width: 768px) {
+      .orb { filter: blur(130px); }
+      .orb-gold { width:46vw; height:46vw; right:8%; top:-8%; }
+      .orb-cyan { width:52vw; height:52vw; left:-6%; bottom:-10%; }
+    }
+
+    /* ── HERO SPECIFIC ANIMATIONS ── */
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+    .animate-float { animation: float 6s ease-in-out infinite; }
+
+    @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes spin-slow-reverse { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
+    .animate-spin-slow { animation: spin-slow 20s linear infinite; }
+    .animate-spin-slow-reverse { animation: spin-slow-reverse 25s linear infinite; }
 
     /* ── GLASS CARD ── */
     .glass {
@@ -66,25 +88,27 @@
     /* ── LOGO PULSE ── */
     .logo-pulse { animation: lp 3.2s ease-in-out infinite; }
     @keyframes lp {
-      0%,100% { box-shadow:0 0 18px rgba(234,179,8,.15); border-color:rgba(234,179,8,.3); }
-      50%      { box-shadow:0 0 32px rgba(6,182,212,.45); border-color:rgba(6,182,212,.55); }
+      0%,100% { box-shadow:0 0 14px rgba(234,179,8,.15); border-color:rgba(234,179,8,.3); }
+      50%      { box-shadow:0 0 24px rgba(6,182,212,.45); border-color:rgba(6,182,212,.55); }
     }
 
     /* ── CARD HOVER ── */
     .lift {
       transition: transform .35s cubic-bezier(.16,1,.3,1), box-shadow .35s ease, border-color .35s ease;
     }
-    .lift:hover {
-      transform: translateY(-6px) scale(1.01);
-      border-color: rgba(6,182,212,.2) !important;
-      box-shadow: 0 28px 56px rgba(0,0,0,.75), 0 0 36px rgba(6,182,212,.06);
+    @media (hover: hover) {
+      .lift:hover {
+        transform: translateY(-6px) scale(1.01);
+        border-color: rgba(6,182,212,.2) !important;
+        box-shadow: 0 28px 56px rgba(0,0,0,.75), 0 0 36px rgba(6,182,212,.06);
+      }
     }
 
     /* ── AUCTION ANIMATIONS ── */
     @keyframes bidFlash {
       0%   { box-shadow:0 0 0 0 rgba(6,182,212,0);      background:transparent; }
-      35%  { box-shadow:0 0 45px 10px rgba(6,182,212,.5); background:rgba(6,182,212,.08); }
-      70%  { box-shadow:0 0 22px 3px rgba(6,182,212,.2);  background:rgba(6,182,212,.03); }
+      35%  { box-shadow:0 0 35px 8px rgba(6,182,212,.5); background:rgba(6,182,212,.08); }
+      70%  { box-shadow:0 0 18px 2px rgba(6,182,212,.2);  background:rgba(6,182,212,.03); }
       100% { box-shadow:0 0 0 0 rgba(6,182,212,0);      background:transparent; }
     }
     .bid-flash { animation:bidFlash .75s ease-out forwards; }
@@ -103,22 +127,22 @@
     .blink { animation:bl 1.6s ease-in-out infinite; }
     @keyframes bl { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.35);opacity:.25} }
 
-    ::-webkit-scrollbar { width:4px; }
+    ::-webkit-scrollbar { width:4px; height: 4px; }
     ::-webkit-scrollbar-track { background:transparent; }
     ::-webkit-scrollbar-thumb { background:#2d3748; border-radius:99px; }
 
     /* ── PRINT ── */
     @media print {
       body > * { display:none !important; }
-      #ps { display:block !important; background:#fff !important; color:#000 !important; padding:40px; font-family:Arial,sans-serif; }
+      #ps { display:block !important; background:#fff !important; color:#000 !important; padding:20px; font-family:Arial,sans-serif; }
       .ph { text-align:center; border-bottom:3px solid #000; padding-bottom:18px; margin-bottom:28px; }
-      .ph h1 { font-size:26px; font-weight:900; letter-spacing:4px; margin:0 0 4px; }
+      .ph h1 { font-size:20px; font-weight:900; letter-spacing:2px; margin:0 0 4px; }
       .ph p  { font-size:12px; color:#555; margin:0; }
       .pts   { margin-bottom:32px; page-break-inside:avoid; }
-      .ptitle{ font-size:17px; font-weight:bold; border-bottom:2px solid #000; padding-bottom:5px; margin-bottom:6px; }
+      .ptitle{ font-size:15px; font-weight:bold; border-bottom:2px solid #000; padding-bottom:5px; margin-bottom:6px; }
       .ppurse{ font-size:11px; color:#555; margin-bottom:8px; }
       .ptab  { width:100%; border-collapse:collapse; }
-      .ptab th,.ptab td { border:1px solid #ddd; padding:7px 11px; text-align:left; font-size:12px; }
+      .ptab th,.ptab td { border:1px solid #ddd; padding:6px 8px; text-align:left; font-size:11px; }
       .ptab th { background:#f0f0f0; font-weight:bold; }
       .pfoot { text-align:center; margin-top:28px; font-size:10px; color:#888; }
     }
@@ -254,30 +278,33 @@ function MotionBg() {
 ════════════════════════════════════════ */
 function Nav({ tab, setTab }) {
   const tabs = [
-    { id:'about',     label:'About'       },
-    { id:'players',   label:'Player List' },
-    { id:'teams',     label:'Teams'       },
+    { id:'home',      label:'Home'        },
+    { id:'about',     label:'Legacy'      },
+    { id:'players',   label:'Roster'      },
+    { id:'teams',     label:'Franchises'  },
     { id:'champions', label:'Champions'   },
-    { id:'auction',   label:'Live Auction', live:true },
+    { id:'auction',   label:'Live Draft', live:true },
   ];
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-5 sticky top-0 z-50">
-      <div className="glass rounded-2xl px-6 flex items-center justify-between h-[72px]">
-        <div className="flex items-center gap-4 flex-shrink-0">
-          <div className="w-11 h-11 rounded-xl flex items-center justify-center font-display font-bold text-black text-base logo-pulse border border-transparent"
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 pt-4 sm:pt-5 sticky top-0 z-50">
+      <div className="glass rounded-xl sm:rounded-2xl px-3 sm:px-6 flex items-center justify-between h-[60px] sm:h-[72px]">
+        {/* Clickable Logo routes to Home */}
+        <div onClick={() => setTab('home')} className="flex items-center gap-2 sm:gap-4 flex-shrink-0 cursor-pointer group">
+          <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl flex items-center justify-center font-display font-bold text-black text-xs sm:text-base logo-pulse border border-transparent group-hover:scale-105 transition-transform"
                style={{ background:'linear-gradient(135deg,#06b6d4,#eab308)' }}>
             TL
           </div>
-          <div className="leading-none">
-            <div className="font-brand text-[11px] text-white tracking-[0.28em]">TEST LEAGUE</div>
-            <div className="text-[9px] text-gray-500 tracking-[0.38em] uppercase mt-1">Private Circuit</div>
+          <div className="leading-none hidden sm:block">
+            <div className="font-brand text-[9px] sm:text-[11px] text-white tracking-[0.2em] sm:tracking-[0.28em]">TEST LEAGUE</div>
+            <div className="text-[7px] sm:text-[9px] text-gray-500 tracking-[0.2em] sm:tracking-[0.38em] uppercase mt-1">Private Circuit</div>
           </div>
         </div>
-        <div className="flex items-end h-full overflow-x-auto gap-0.5 pb-0">
+        
+        <div className="flex items-center h-full overflow-x-auto no-scrollbar gap-2 sm:gap-2 pb-0 flex-1 justify-end">
           {tabs.map(t => (
             <button key={t.id} onClick={() => setTab(t.id)}
-              className={`ntab h-full px-4 text-[11px] tracking-wider uppercase font-medium rounded-lg hover:text-white transition-all whitespace-nowrap ${tab===t.id ? 'on' : 'text-gray-400'}`}>
-              {t.live && <span className="blink inline-block w-1.5 h-1.5 bg-cyan-400 rounded-full mr-1.5 mb-0.5 align-middle" />}
+              className={`ntab h-full px-2 sm:px-4 text-[9px] sm:text-[11px] tracking-widest uppercase font-medium rounded-lg hover:text-white transition-all whitespace-nowrap flex-shrink-0 flex items-center ${tab===t.id ? 'on' : 'text-gray-400'}`}>
+              {t.live && <span className="blink inline-block w-1 h-1 sm:w-1.5 sm:h-1.5 bg-cyan-400 rounded-full mr-1 sm:mr-1.5 align-middle" />}
               {t.label}
             </button>
           ))}
@@ -288,25 +315,68 @@ function Nav({ tab, setTab }) {
 }
 
 /* ════════════════════════════════════════
+   HERO / HOME VIEW (NEW)
+════════════════════════════════════════ */
+function HeroView({ setTab }) {
+  return (
+    <div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-100px)] px-4 fade-up overflow-hidden">
+      
+      {/* Animated Background Radar Rings */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-60">
+        <div className="absolute w-[280px] h-[280px] sm:w-[450px] sm:h-[450px] rounded-full border-[1px] border-cyan-500/30 border-t-cyan-400 border-b-transparent animate-spin-slow" />
+        <div className="absolute w-[220px] h-[220px] sm:w-[350px] sm:h-[350px] rounded-full border-[2px] border-dashed border-yellow-500/40 animate-spin-slow-reverse" />
+        <div className="absolute w-[380px] h-[380px] sm:w-[600px] sm:h-[600px] rounded-full border-[1px] border-white/5 border-l-white/20 animate-spin-slow" style={{ animationDuration: '30s' }} />
+      </div>
+
+      {/* Floating Center Content */}
+      <div className="z-10 text-center animate-float w-full max-w-4xl mx-auto">
+        <div className="inline-block mb-4 sm:mb-6 px-4 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 backdrop-blur-md">
+          <span className="font-brand text-[8px] sm:text-[10px] text-cyan-400 tracking-[0.3em]">WELCOME TO THE VIP CIRCUIT</span>
+        </div>
+        
+        <h1 className="font-brand text-5xl sm:text-7xl md:text-8xl text-white tracking-widest drop-shadow-[0_0_30px_rgba(6,182,212,0.4)] mb-4 leading-tight">
+          TEST <br className="sm:hidden" />
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-amber-600">LEAGUE</span>
+        </h1>
+        
+        <p className="text-gray-400 font-light tracking-wide max-w-xl mx-auto text-xs sm:text-sm md:text-base mb-10 sm:mb-12 px-2">
+          The absolute pinnacle of private franchise cricket. Elite rosters, unlimited stakes, and unparalleled operational prestige.
+        </p>
+        
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full px-8 sm:px-0">
+          <button onClick={() => setTab('auction')} className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl font-brand text-[10px] sm:text-xs text-white tracking-widest hover:scale-105 transition-transform shadow-[0_0_20px_rgba(6,182,212,0.4)]">
+            ENTER LIVE DRAFT
+          </button>
+          <button onClick={() => setTab('about')} className="w-full sm:w-auto px-8 py-4 glass rounded-xl font-brand text-[10px] sm:text-xs text-white tracking-widest hover:border-yellow-500/50 transition-colors">
+            DISCOVER THE LEGACY
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+/* ════════════════════════════════════════
    ABOUT VIEW
 ════════════════════════════════════════ */
 function AboutView() {
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-16">
-      <div className="text-center mb-16 fade-up">
-        <h1 className="font-brand text-2xl md:text-3xl text-white mb-4" style={{ letterSpacing:'0.2em' }}>
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
+      <div className="text-center mb-10 sm:mb-16 fade-up">
+        <h1 className="font-brand text-xl sm:text-2xl md:text-3xl text-white mb-3 sm:mb-4" style={{ letterSpacing:'0.15em' }}>
           THE LEGACY OF TEST LEAGUE
         </h1>
-        <p className="text-gray-400 max-w-xl mx-auto text-base font-light leading-relaxed">
+        <p className="text-gray-400 max-w-xl mx-auto text-sm sm:text-base font-light leading-relaxed">
           An elite invitation-only framework engineering the standard of modern franchise cricket.
         </p>
       </div>
 
       {/* Founder card */}
-      <div className="mb-24 fade-up" style={{ animationDelay:'.15s' }}>
-        <div className="glass rounded-3xl overflow-hidden lift">
+      <div className="mb-16 sm:mb-24 fade-up" style={{ animationDelay:'.15s' }}>
+        <div className="glass rounded-2xl sm:rounded-3xl overflow-hidden lift">
           <div className="flex flex-col md:flex-row">
-            <div className="md:w-5/12 h-[420px] relative overflow-hidden flex-shrink-0">
+            <div className="md:w-5/12 h-64 sm:h-80 md:h-[420px] relative overflow-hidden flex-shrink-0">
               <img src="WhatsApp Image 2026-06-10 at 2.40.10 PM.jpeg" alt="Talha Riaz"
                    className="w-full h-full object-cover object-top grayscale hover:grayscale-0 transition-all duration-700" />
               <div className="absolute inset-0 pointer-events-none"
@@ -314,13 +384,13 @@ function AboutView() {
               <div className="absolute inset-0 pointer-events-none"
                    style={{ background:'linear-gradient(to top,rgba(4,6,14,0.92) 0%,transparent 55%)' }} />
             </div>
-            <div className="p-8 md:p-12 md:w-7/12 flex flex-col justify-center">
-              <span className="font-brand text-[9px] text-yellow-500 tracking-[0.3em] block mb-3">FOUNDER & EXECUTIVE LEAGUE OWNER</span>
-              <h2 className="text-4xl font-bold text-white tracking-tight mb-4">Talha Riaz</h2>
-              <div className="inline-flex items-center gap-2 bg-cyan-500/10 text-cyan-400 text-xs tracking-wider uppercase font-semibold px-3 py-1.5 rounded-lg border border-cyan-500/20 mb-7 w-max">
+            <div className="p-6 sm:p-8 md:p-12 md:w-7/12 flex flex-col justify-center">
+              <span className="font-brand text-[8px] sm:text-[9px] text-yellow-500 tracking-[0.2em] sm:tracking-[0.3em] block mb-2 sm:mb-3">FOUNDER & EXECUTIVE LEAGUE OWNER</span>
+              <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-3 sm:mb-4">Talha Riaz</h2>
+              <div className="inline-flex items-center gap-2 bg-cyan-500/10 text-cyan-400 text-[10px] sm:text-xs tracking-wider uppercase font-semibold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-cyan-500/20 mb-5 sm:mb-7 w-max">
                 ⚡ Right-Arm Fast Bowler
               </div>
-              <p className="text-gray-400 text-base leading-relaxed italic font-light">
+              <p className="text-gray-400 text-sm sm:text-base leading-relaxed italic font-light">
                 "TEST LEAGUE was structured to fulfill a singular commitment: designing a private, prestigious matrix where raw athletic supremacy meets high-stakes operational planning. We ensure elite visibility across every single delivery."
               </p>
             </div>
@@ -332,15 +402,18 @@ function AboutView() {
       <div className="relative">
         <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px"
              style={{ background:'linear-gradient(to bottom,rgba(6,182,212,.45),rgba(234,179,8,.2),transparent)' }} />
-        <div className="space-y-14">
+        <div className="space-y-8 sm:space-y-14">
           {HISTORY.map((item, i) => (
             <div key={item.year} className="fade-up flex flex-col md:flex-row items-center relative"
                  style={{ animationDelay:`${i*.15}s` }}>
               <div className={`w-full md:w-5/12 ${i%2===0 ? 'md:pr-14 md:text-right' : 'md:order-3 md:pl-14'}`}>
-                <div className="glass p-7 rounded-2xl lift">
+                <div className="glass p-5 sm:p-7 rounded-2xl lift relative pl-10 sm:pl-7">
+                  {/* Mobile Dot */}
+                  <div className="md:hidden absolute left-4 top-6 w-3 h-3 rounded-full bg-cyan-400 shadow-[0_0_8px_#06b6d4]"></div>
+                  
                   <span className="font-brand text-[9px] text-cyan-400 tracking-widest mb-1.5 block">{item.year}</span>
-                  <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
-                  <p className="text-gray-400 text-sm font-light leading-relaxed">{item.desc}</p>
+                  <h3 className="text-lg sm:text-xl font-bold text-white mb-2">{item.title}</h3>
+                  <p className="text-gray-400 text-xs sm:text-sm font-light leading-relaxed">{item.desc}</p>
                 </div>
               </div>
               <div className="hidden md:flex absolute left-1/2 -ml-5 w-10 h-10 rounded-full glass border border-white/10 items-center justify-center font-brand text-[10px] text-white z-10 shadow-xl">
@@ -360,28 +433,28 @@ function AboutView() {
 ════════════════════════════════════════ */
 function PlayerCard({ p }) {
   return (
-    <div className="lift glass rounded-3xl overflow-hidden flex flex-col border border-white/5">
-      <div className={`relative h-48 bg-gradient-to-br ${p.grad} flex items-center justify-center`}>
+    <div className="lift glass rounded-2xl sm:rounded-3xl overflow-hidden flex flex-col border border-white/5">
+      <div className={`relative h-40 sm:h-48 bg-gradient-to-br ${p.grad} flex items-center justify-center`}>
         <div className="absolute inset-0 opacity-10"
              style={{ backgroundImage:'radial-gradient(circle at 2px 2px,white 1px,transparent 0)', backgroundSize:'18px 18px' }} />
         <img src={p.photo} alt={p.name}
-             className="w-28 h-28 rounded-full object-cover z-10"
+             className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover z-10"
              style={{ border:'4px solid rgba(255,255,255,0.08)', boxShadow:'0 8px 32px rgba(0,0,0,.55)' }} />
-        <div className={`absolute top-4 right-4 text-xs font-bold px-2.5 py-1 rounded-full backdrop-blur-sm border ${ROLE_BADGE[p.role]||''}`}>
+        <div className={`absolute top-3 right-3 sm:top-4 sm:right-4 text-[10px] sm:text-xs font-bold px-2.5 py-1 rounded-full backdrop-blur-sm border ${ROLE_BADGE[p.role]||''}`}>
           {p.role}
         </div>
       </div>
-      <div className="p-6 flex-1 flex flex-col">
-        <h3 className="font-display font-bold text-2xl text-white tracking-wide mb-2">{p.name}</h3>
-        <p className="text-gray-400 text-sm leading-relaxed flex-1 mb-5"
+      <div className="p-5 sm:p-6 flex-1 flex flex-col">
+        <h3 className="font-display font-bold text-xl sm:text-2xl text-white tracking-wide mb-1.5">{p.name}</h3>
+        <p className="text-gray-400 text-xs sm:text-sm leading-relaxed flex-1 mb-4 sm:mb-5"
            style={{ display:'-webkit-box', WebkitLineClamp:3, WebkitBoxOrient:'vertical', overflow:'hidden' }}>
           {p.bio}
         </p>
-        <div className="grid grid-cols-3 gap-2 pt-4" style={{ borderTop:'1px solid rgba(255,255,255,0.07)' }}>
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-2 pt-4" style={{ borderTop:'1px solid rgba(255,255,255,0.07)' }}>
           {[['Matches',p.stats.m],['High Score',p.stats.hs],['Best SR',p.stats.sr]].map(([l,v])=>(
-            <div key={l} className="text-center bg-white/5 rounded-lg py-2">
-              <div className="font-display font-bold text-xl text-yellow-400">{v}</div>
-              <div className="text-[10px] text-gray-500 uppercase tracking-wider mt-0.5">{l}</div>
+            <div key={l} className="text-center bg-white/5 rounded-lg py-1.5 sm:py-2">
+              <div className="font-display font-bold text-lg sm:text-xl text-yellow-400">{v}</div>
+              <div className="text-[8px] sm:text-[10px] text-gray-500 uppercase tracking-wider mt-0.5">{l}</div>
             </div>
           ))}
         </div>
@@ -392,12 +465,12 @@ function PlayerCard({ p }) {
 
 function PlayersView() {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14 fade-up">
-      <div className="text-center mb-12">
-        <h1 className="font-brand text-xl text-white" style={{ letterSpacing:'0.24em' }}>REGISTRY ARCHIVE</h1>
-        <p className="text-gray-500 text-xs mt-2 tracking-widest uppercase font-light">{PLAYERS.length} Verified Athlete Contracts</p>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-14 fade-up">
+      <div className="text-center mb-8 sm:mb-12">
+        <h1 className="font-brand text-lg sm:text-xl text-white" style={{ letterSpacing:'0.2em' }}>REGISTRY ARCHIVE</h1>
+        <p className="text-gray-500 text-[10px] sm:text-xs mt-1.5 sm:mt-2 tracking-widest uppercase font-light">{PLAYERS.length} Verified Athlete Contracts</p>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6">
         {PLAYERS.map(p => <PlayerCard key={p.id} p={p} />)}
       </div>
     </div>
@@ -409,7 +482,7 @@ function PlayersView() {
 ════════════════════════════════════════ */
 function WLBar({ wl }) {
   return (
-    <div className="flex gap-0.5 h-2 rounded-full overflow-hidden">
+    <div className="flex gap-0.5 h-1.5 sm:h-2 rounded-full overflow-hidden">
       {wl.map((r,i) => <div key={i} className="flex-1" style={{ background:r?'#10b981':'#ef4444' }} />)}
     </div>
   );
@@ -417,35 +490,35 @@ function WLBar({ wl }) {
 
 function TeamsView() {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14 fade-up">
-      <div className="text-center mb-12">
-        <h1 className="font-brand text-xl text-white" style={{ letterSpacing:'0.24em' }}>FRANCHISE PILLARS</h1>
-        <p className="text-gray-500 text-xs mt-2 tracking-widest uppercase font-light">Three Chartered Network Outposts</p>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-14 fade-up">
+      <div className="text-center mb-8 sm:mb-12">
+        <h1 className="font-brand text-lg sm:text-xl text-white" style={{ letterSpacing:'0.2em' }}>FRANCHISE PILLARS</h1>
+        <p className="text-gray-500 text-[10px] sm:text-xs mt-1.5 sm:mt-2 tracking-widest uppercase font-light">Three Chartered Network Outposts</p>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
         {TEAMS.map(t => (
-          <div key={t.id} className="lift glass rounded-3xl overflow-hidden flex flex-col border border-white/5">
-            <div className="p-8 flex flex-col items-center text-center"
+          <div key={t.id} className="lift glass rounded-2xl sm:rounded-3xl overflow-hidden flex flex-col border border-white/5">
+            <div className="p-6 sm:p-8 flex flex-col items-center text-center"
                  style={{ background:`linear-gradient(180deg,${t.primary}55,transparent)` }}>
-              <Crest short={t.short} sz={80} />
-              <div className="mt-4">
-                <div className="font-brand text-[9px] text-gray-400 tracking-[0.3em] mb-1">{t.short}</div>
-                <h2 className="text-xl font-bold text-white">{t.name}</h2>
-                <div className="text-xs mt-1.5 italic font-medium" style={{ color:t.accent }}>"{t.tagline}"</div>
+              <Crest short={t.short} sz={70} />
+              <div className="mt-3 sm:mt-4">
+                <div className="font-brand text-[8px] sm:text-[9px] text-gray-400 tracking-[0.3em] mb-1">{t.short}</div>
+                <h2 className="text-lg sm:text-xl font-bold text-white">{t.name}</h2>
+                <div className="text-[10px] sm:text-xs mt-1 sm:mt-1.5 italic font-medium" style={{ color:t.accent }}>"{t.tagline}"</div>
               </div>
             </div>
-            <div className="p-6 flex-1 flex flex-col">
-              <p className="text-gray-400 text-sm font-light leading-relaxed mb-5 flex-1">{t.history}</p>
-              <div className="rounded-xl p-4 border border-white/5" style={{ background:'rgba(0,0,0,.45)' }}>
-                <div className="flex justify-around items-center mb-4">
+            <div className="p-5 sm:p-6 flex-1 flex flex-col">
+              <p className="text-gray-400 text-xs sm:text-sm font-light leading-relaxed mb-4 sm:mb-5 flex-1">{t.history}</p>
+              <div className="rounded-xl p-3 sm:p-4 border border-white/5" style={{ background:'rgba(0,0,0,.45)' }}>
+                <div className="flex justify-around items-center mb-3 sm:mb-4">
                   {[['Wins',t.wins,'text-green-400'],[`🏆 ${t.titles}`,'Titles','text-yellow-400'],['Losses',t.losses,'text-red-400']].map(([v,l,c],i)=>(
                     <div key={i} className="text-center">
-                      <div className={`text-xl font-bold ${c}`}>{v}</div>
-                      <div className="text-[9px] text-gray-500 uppercase tracking-wider mt-0.5">{l}</div>
+                      <div className={`text-lg sm:text-xl font-bold ${c}`}>{v}</div>
+                      <div className="text-[8px] sm:text-[9px] text-gray-500 uppercase tracking-wider mt-0.5">{l}</div>
                     </div>
                   ))}
                 </div>
-                <div className="text-[9px] text-gray-600 uppercase tracking-widest mb-1.5">Recent Form</div>
+                <div className="text-[8px] sm:text-[9px] text-gray-600 uppercase tracking-widest mb-1 sm:mb-1.5">Recent Form</div>
                 <WLBar wl={t.wl} />
               </div>
             </div>
@@ -461,37 +534,37 @@ function TeamsView() {
 ════════════════════════════════════════ */
 function ChampionsView() {
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-14">
-      <div className="text-center mb-14 fade-up">
-        <h1 className="font-brand text-xl text-white" style={{ letterSpacing:'0.24em' }}>HALL OF CHAMPIONS</h1>
-        <p className="text-gray-500 text-xs mt-2 tracking-widest uppercase font-light">Historical Record Ledger</p>
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
+      <div className="text-center mb-8 sm:mb-14 fade-up">
+        <h1 className="font-brand text-lg sm:text-xl text-white" style={{ letterSpacing:'0.2em' }}>HALL OF CHAMPIONS</h1>
+        <p className="text-gray-500 text-[10px] sm:text-xs mt-1.5 sm:mt-2 tracking-widest uppercase font-light">Historical Record Ledger</p>
       </div>
-      <div className="space-y-5">
+      <div className="space-y-4 sm:space-y-5">
         {CHAMPS.map((c,i) => (
           <div key={c.season} className="fade-up" style={{ animationDelay:`${i*.12}s` }}>
-            <div className="glass lift rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-5 border border-white/5"
+            <div className="glass lift rounded-2xl p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-5 border border-white/5"
                  style={{ background:`linear-gradient(90deg,${c.bg},rgba(4,6,14,.5))`, borderColor:c.border }}>
-              <div className="flex items-center gap-5">
-                <div className="w-14 h-14 rounded-xl flex items-center justify-center font-brand text-xs text-black shadow-lg flex-shrink-0"
-                     style={{ background:'linear-gradient(135deg,#fbbf24,#b45309)', fontSize:'11px', letterSpacing:'0.1em' }}>
+              <div className="flex items-center gap-4 sm:gap-5">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center font-brand text-[10px] sm:text-xs text-black shadow-lg flex-shrink-0"
+                     style={{ background:'linear-gradient(135deg,#fbbf24,#b45309)', letterSpacing:'0.1em' }}>
                   S{c.season}
                 </div>
                 <div>
-                  <div className="font-brand text-[9px] text-yellow-500 tracking-widest mb-0.5">YEAR {c.year}</div>
+                  <div className="font-brand text-[8px] sm:text-[9px] text-yellow-500 tracking-widest mb-0.5">YEAR {c.year}</div>
                   <div className="flex items-center gap-2 mb-0.5">
-                    <Crest short={c.wS} sz={26} />
-                    <h3 className="text-xl font-bold text-white">{c.winner}</h3>
+                    <Crest short={c.wS} sz={22} />
+                    <h3 className="text-lg sm:text-xl font-bold text-white leading-tight">{c.winner}</h3>
                   </div>
-                  <div className="text-xs text-gray-500">Runner-up: <span className="text-gray-300">{c.runnerUp}</span></div>
-                  <div className="text-xs text-gray-600 mt-2 italic max-w-xs">"{c.highlight}"</div>
+                  <div className="text-[10px] sm:text-xs text-gray-500 mt-1">Runner-up: <span className="text-gray-300">{c.runnerUp}</span></div>
+                  <div className="text-[10px] sm:text-xs text-gray-600 mt-1.5 sm:mt-2 italic max-w-xs leading-relaxed">"{c.highlight}"</div>
                 </div>
               </div>
-              <div className="glass rounded-xl p-4 border border-white/8 text-right flex-shrink-0"
-                   style={{ minWidth:'185px' }}>
-                <div className="font-brand text-[8px] text-gray-500 tracking-widest block mb-0.5">TOURNAMENT MVP</div>
-                <div className="font-medium text-white text-sm">{c.star}</div>
-                <div className="text-xs text-yellow-400/80 mt-0.5">{c.starNote}</div>
-                <div className="text-xs text-gray-400 mt-2 pt-2 border-t border-white/8">{c.result}</div>
+              <div className="glass rounded-xl p-3 sm:p-4 border border-white/8 text-left sm:text-right flex-shrink-0 mt-2 sm:mt-0"
+                   style={{ minWidth:'auto sm:minWidth:185px' }}>
+                <div className="font-brand text-[7px] sm:text-[8px] text-gray-500 tracking-widest block mb-0.5">TOURNAMENT MVP</div>
+                <div className="font-medium text-white text-xs sm:text-sm">{c.star}</div>
+                <div className="text-[10px] sm:text-xs text-yellow-400/80 mt-0.5">{c.starNote}</div>
+                <div className="text-[10px] sm:text-xs text-gray-400 mt-2 pt-2 border-t border-white/8">{c.result}</div>
               </div>
             </div>
           </div>
@@ -589,26 +662,28 @@ function AuctionView({ as, setAs }) {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 fade-up">
       {/* Sub-header */}
-      <div className="flex items-center justify-between flex-wrap gap-4 mb-8 pb-5"
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-4 mb-6 sm:mb-8 pb-4 sm:pb-5"
            style={{ borderBottom:'1px solid rgba(255,255,255,0.07)' }}>
-        <div className="flex items-center gap-3">
-          <span className="blink inline-block w-2 h-2 bg-cyan-400 rounded-full" />
-          <span className="font-brand text-cyan-400 text-[10px] tracking-widest">LIVE AUCTION</span>
+        <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto overflow-x-auto no-scrollbar pb-1 sm:pb-0">
+          <span className="blink inline-block w-1.5 h-1.5 sm:w-2 sm:h-2 bg-cyan-400 rounded-full flex-shrink-0" />
+          <span className="font-brand text-cyan-400 text-[9px] sm:text-[10px] tracking-widest whitespace-nowrap">LIVE AUCTION</span>
           {unsoldRound && (
-            <span className="text-[9px] font-bold px-2.5 py-1 rounded-full bg-orange-500/15 text-orange-400 border border-orange-500/25 tracking-wider">
+            <span className="text-[8px] sm:text-[9px] font-bold px-2 py-1 rounded-full bg-orange-500/15 text-orange-400 border border-orange-500/25 tracking-wider whitespace-nowrap">
               UNSOLD POOL ROUND
             </span>
           )}
         </div>
-        <div className="flex gap-5 items-center">
-          {[['block','Control Panel'],['franchise','Franchise Ledgers']].map(([id,label]) => (
-            <button key={id} onClick={() => setSubTab(id)}
-              className={`font-brand text-[10px] uppercase tracking-widest pb-1 border-b-2 transition-colors ${subTab===id ? 'text-cyan-400 border-cyan-400' : 'text-gray-500 border-transparent hover:text-gray-300'}`}>
-              {label}
-            </button>
-          ))}
-          <div className="text-xs text-gray-600 pl-3" style={{ borderLeft:'1px solid rgba(255,255,255,0.07)' }}>
-            {soldCount} / {PLAYERS.length} drafted
+        <div className="flex gap-4 sm:gap-5 items-center w-full sm:w-auto justify-between sm:justify-end">
+          <div className="flex gap-4 sm:gap-5">
+            {[['block','Control Panel'],['franchise','Franchise Ledgers']].map(([id,label]) => (
+              <button key={id} onClick={() => setSubTab(id)}
+                className={`font-brand text-[9px] sm:text-[10px] uppercase tracking-widest pb-1 border-b-2 transition-colors whitespace-nowrap ${subTab===id ? 'text-cyan-400 border-cyan-400' : 'text-gray-500 border-transparent hover:text-gray-300'}`}>
+                {label}
+              </button>
+            ))}
+          </div>
+          <div className="text-[10px] sm:text-xs text-gray-600 pl-3 sm:pl-4 whitespace-nowrap" style={{ borderLeft:'1px solid rgba(255,255,255,0.07)' }}>
+            {soldCount} / {PLAYERS.length}
           </div>
         </div>
       </div>
@@ -616,34 +691,34 @@ function AuctionView({ as, setAs }) {
       {/* ── CONTROL PANEL ── */}
       {subTab === 'block' && (
         auctionDone ? (
-          <div className="max-w-md mx-auto text-center py-20">
-            <div className="text-6xl mb-6">🎊</div>
-            <h2 className="font-brand text-base text-white mb-3 tracking-widest">AUCTION CONCLUDED</h2>
-            <p className="text-gray-500 text-sm mb-8">All athletes have been allocated to their respective franchises.</p>
+          <div className="max-w-md mx-auto text-center py-16 sm:py-20 px-4">
+            <div className="text-5xl sm:text-6xl mb-4 sm:mb-6">🎊</div>
+            <h2 className="font-brand text-sm sm:text-base text-white mb-2 sm:mb-3 tracking-widest">AUCTION CONCLUDED</h2>
+            <p className="text-gray-500 text-xs sm:text-sm mb-6 sm:mb-8">All athletes have been allocated to their respective franchises.</p>
             <button onClick={handlePrint}
-                    className="px-8 py-3.5 rounded-xl font-brand text-xs text-black tracking-wider transition-all hover:scale-105 active:scale-95"
+                    className="w-full sm:w-auto px-6 sm:px-8 py-3.5 rounded-xl font-brand text-[10px] sm:text-xs text-black tracking-wider transition-all hover:scale-105 active:scale-95"
                     style={{ background:'linear-gradient(135deg,#06b6d4,#eab308)', boxShadow:'0 8px 24px rgba(6,182,212,0.35)' }}>
-              DOWNLOAD OFFICIAL MANIFEST (PDF)
+              DOWNLOAD OFFICIAL MANIFEST
             </button>
           </div>
         ) : !player ? null : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
 
             {/* Player Feature Card */}
-            <div className="lg:col-span-2 glass rounded-3xl overflow-hidden border border-white/5">
-              <div className={`relative h-80 bg-gradient-to-b ${player.grad} flex items-center justify-center`}>
+            <div className="lg:col-span-2 glass rounded-2xl sm:rounded-3xl overflow-hidden border border-white/5">
+              <div className={`relative h-64 sm:h-80 bg-gradient-to-b ${player.grad} flex items-center justify-center`}>
                 <div className="absolute inset-0 opacity-10"
                      style={{ backgroundImage:'radial-gradient(circle at 2px 2px,white 1px,transparent 0)', backgroundSize:'20px 20px' }} />
                 <img src={player.photo} alt={player.name}
-                     className="w-44 h-44 rounded-full object-cover z-10"
+                     className="w-32 h-32 sm:w-44 sm:h-44 rounded-full object-cover z-10"
                      style={{ border:'4px solid rgba(255,255,255,0.1)', boxShadow:'0 16px 48px rgba(0,0,0,.6)' }} />
-                <div className="absolute top-4 left-4 rounded-xl px-4 py-2 z-10"
+                <div className="absolute top-3 left-3 sm:top-4 sm:left-4 rounded-xl px-3 sm:px-4 py-1.5 sm:py-2 z-10"
                      style={{ background:'rgba(0,0,0,.65)', backdropFilter:'blur(8px)' }}>
-                  <div className="font-brand text-[8px] text-gray-400 tracking-widest leading-none mb-0.5">BASE VALUATION</div>
-                  <div className="font-display font-bold text-yellow-400">{fmt(player.base)}</div>
+                  <div className="font-brand text-[7px] sm:text-[8px] text-gray-400 tracking-widest leading-none mb-0.5 sm:mb-1">BASE VALUATION</div>
+                  <div className="font-display font-bold text-base sm:text-lg text-yellow-400">{fmt(player.base)}</div>
                 </div>
                 {unsoldRound && (
-                  <div className="absolute top-4 right-4 bg-orange-500/20 text-orange-400 font-brand text-[8px] px-3 py-1 rounded-full border border-orange-500/30 z-10 tracking-widest">
+                  <div className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-orange-500/20 text-orange-400 font-brand text-[7px] sm:text-[8px] px-2.5 sm:px-3 py-1 rounded-full border border-orange-500/30 z-10 tracking-widest">
                     UNSOLD POOL
                   </div>
                 )}
@@ -652,81 +727,81 @@ function AuctionView({ as, setAs }) {
                   <div className="absolute inset-0 flex items-center justify-center z-20"
                        style={{ background:'rgba(0,0,0,.78)', backdropFilter:'blur(4px)' }}>
                     {isSold ? (
-                      <div className="sold-in flex flex-col items-center gap-1.5">
-                        <div className="font-brand text-red-500 px-5 py-2 rounded-xl"
-                             style={{ fontSize:'4rem', letterSpacing:'0.1em',
+                      <div className="sold-in flex flex-col items-center gap-1 sm:gap-1.5">
+                        <div className="font-brand text-red-500 px-4 sm:px-5 py-1.5 sm:py-2 rounded-xl text-5xl sm:text-[4rem] leading-none"
+                             style={{ letterSpacing:'0.1em',
                                       border:'4px solid rgba(239,68,68,.85)',
                                       filter:'drop-shadow(0 0 24px rgba(239,68,68,.7))' }}>
                           SOLD
                         </div>
-                        <div className="font-brand text-[10px] text-red-400 tracking-widest">
+                        <div className="font-brand text-[8px] sm:text-[10px] text-red-400 tracking-widest mt-1 sm:mt-0">
                           {TEAMS.find(t=>t.id===winnerId)?.name}
                         </div>
-                        <div className="font-display font-bold text-red-300 text-xl">{fmt(liveBid)}</div>
+                        <div className="font-display font-bold text-red-300 text-lg sm:text-xl">{fmt(liveBid)}</div>
                       </div>
                     ) : (
-                      <div className="flex flex-col items-center gap-2">
-                        <div className="font-brand text-gray-400 px-6 py-2 rounded-xl text-3xl"
+                      <div className="flex flex-col items-center gap-1.5 sm:gap-2">
+                        <div className="font-brand text-gray-400 px-4 sm:px-6 py-1.5 sm:py-2 rounded-xl text-2xl sm:text-3xl"
                              style={{ border:'3px solid rgba(156,163,175,.5)', letterSpacing:'0.12em' }}>
                           PASSED
                         </div>
-                        <div className="font-brand text-[9px] text-gray-500 tracking-widest">Returns to Unsold Pool</div>
+                        <div className="font-brand text-[7px] sm:text-[9px] text-gray-500 tracking-widest">Returns to Unsold Pool</div>
                       </div>
                     )}
                   </div>
                 )}
               </div>
 
-              <div className="p-8">
-                <div className="flex items-start justify-between gap-4 mb-4">
+              <div className="p-5 sm:p-8">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
                   <div>
-                    <h2 className="text-3xl font-bold text-white mb-2">{player.name}</h2>
-                    <span className={`text-xs font-bold px-2.5 py-1 rounded-full border ${ROLE_BADGE[player.role]||''}`}>
+                    <h2 className="text-2xl sm:text-3xl font-bold text-white mb-1 sm:mb-2">{player.name}</h2>
+                    <span className={`inline-block text-[10px] sm:text-xs font-bold px-2.5 py-1 rounded-full border ${ROLE_BADGE[player.role]||''}`}>
                       {player.role}
                     </span>
                   </div>
-                  <div className="flex gap-6 text-center flex-shrink-0">
+                  <div className="flex gap-4 sm:gap-6 text-center w-full sm:w-auto justify-between sm:justify-start bg-black/20 sm:bg-transparent p-3 sm:p-0 rounded-xl">
                     {[['Matches',player.stats.m],['High Score',player.stats.hs],['Strike Rate',player.stats.sr]].map(([l,v])=>(
                       <div key={l}>
-                        <div className="font-display font-bold text-xl text-yellow-400">{v}</div>
-                        <div className="font-brand text-[8px] text-gray-600 tracking-widest mt-0.5">{l}</div>
+                        <div className="font-display font-bold text-lg sm:text-xl text-yellow-400">{v}</div>
+                        <div className="font-brand text-[7px] sm:text-[8px] text-gray-600 tracking-widest mt-0.5">{l}</div>
                       </div>
                     ))}
                   </div>
                 </div>
-                <p className="text-gray-400 text-sm font-light leading-relaxed">{player.bio}</p>
+                <p className="text-gray-400 text-xs sm:text-sm font-light leading-relaxed">{player.bio}</p>
               </div>
             </div>
 
             {/* Bidding Panel */}
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3 sm:gap-4">
               {/* Live Bid display */}
-              <div ref={bidRef} className="glass rounded-2xl p-6 text-center"
+              <div ref={bidRef} className="glass rounded-2xl p-5 sm:p-6 text-center"
                    style={{ borderTop:'2px solid rgba(6,182,212,.35)' }}>
-                <div className="font-brand text-[8px] text-gray-500 tracking-widest block mb-3">CURRENT MAXIMUM BID</div>
-                <div className="font-display font-black text-5xl tracking-tight" style={{ color:'#22d3ee', lineHeight:1 }}>
+                <div className="font-brand text-[7px] sm:text-[8px] text-gray-500 tracking-widest block mb-2 sm:mb-3">CURRENT MAXIMUM BID</div>
+                <div className="font-display font-black text-4xl sm:text-5xl tracking-tight break-all" style={{ color:'#22d3ee', lineHeight:1 }}>
                   {fmt(liveBid)}
                 </div>
-                <div className="font-brand text-[8px] text-gray-700 mt-2.5 tracking-wider">
+                <div className="font-brand text-[7px] sm:text-[8px] text-gray-700 mt-2 sm:mt-2.5 tracking-wider">
                   +{fmt(incr(liveBid))} PER RAISE
                 </div>
               </div>
 
               {/* COMMAND RAISE */}
               <button onClick={handleBid} disabled={isSold || isPassed}
-                      className="w-full py-4 rounded-xl font-brand text-[11px] text-black tracking-widest transition-all hover:brightness-110 hover:scale-[1.02] active:scale-[0.97] disabled:opacity-20 disabled:cursor-not-allowed disabled:hover:scale-100"
+                      className="w-full py-3.5 sm:py-4 rounded-xl font-brand text-[10px] sm:text-[11px] text-black tracking-widest transition-all hover:brightness-110 active:scale-[0.97] disabled:opacity-20 disabled:cursor-not-allowed"
                       style={{ background:'linear-gradient(135deg,#06b6d4,#0284c7)', boxShadow:'0 8px 24px rgba(6,182,212,.3)' }}>
                 ⬆ COMMAND RAISE
               </button>
 
               {/* HAMMER / PASS */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3">
                 <button onClick={() => setModal(true)} disabled={isSold || isPassed}
-                        className="py-3.5 rounded-xl font-brand text-[10px] tracking-widest border border-green-500/30 text-green-400 hover:bg-green-500/10 transition-all disabled:opacity-20 disabled:cursor-not-allowed">
+                        className="py-3 sm:py-3.5 rounded-xl font-brand text-[9px] sm:text-[10px] tracking-widest border border-green-500/30 text-green-400 hover:bg-green-500/10 transition-all disabled:opacity-20 disabled:cursor-not-allowed">
                   🔨 HAMMER
                 </button>
                 <button onClick={handlePass} disabled={isSold || isPassed}
-                        className="py-3.5 rounded-xl font-brand text-[10px] tracking-widest border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-20 disabled:cursor-not-allowed">
+                        className="py-3 sm:py-3.5 rounded-xl font-brand text-[9px] sm:text-[10px] tracking-widest border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-20 disabled:cursor-not-allowed">
                   PASS
                 </button>
               </div>
@@ -734,38 +809,38 @@ function AuctionView({ as, setAs }) {
               {/* ADVANCE */}
               {(isSold || isPassed) && (
                 <button onClick={handleNext}
-                        className="w-full py-3.5 rounded-xl font-brand text-[10px] text-white tracking-widest transition-all hover:scale-[1.02]"
+                        className="w-full py-3 sm:py-3.5 rounded-xl font-brand text-[9px] sm:text-[10px] text-white tracking-widest transition-all active:scale-95 mt-1"
                         style={{ background:'rgba(255,255,255,.05)', border:'1px solid rgba(255,255,255,.09)' }}>
                   ADVANCE SEQUENCE ⏭
                 </button>
               )}
 
-              {/* Drafted list */}
+              {/* Drafted list mobile accordion/stack */}
               {soldCount > 0 && (
-                <div className="glass rounded-2xl overflow-hidden border border-white/5">
-                  <div className="px-4 py-2.5 flex items-center justify-between"
+                <div className="glass rounded-xl sm:rounded-2xl overflow-hidden border border-white/5 mt-2 sm:mt-0">
+                  <div className="px-3 sm:px-4 py-2 sm:py-2.5 flex items-center justify-between"
                        style={{ borderBottom:'1px solid rgba(255,255,255,.06)' }}>
-                    <span className="font-brand text-[8px] text-gray-400 tracking-widest">ALLOCATED</span>
-                    <span className="text-[10px] text-gray-600 bg-white/5 px-2 py-0.5 rounded-full">{soldCount}</span>
+                    <span className="font-brand text-[7px] sm:text-[8px] text-gray-400 tracking-widest">ALLOCATED</span>
+                    <span className="text-[9px] sm:text-[10px] text-gray-600 bg-white/5 px-2 py-0.5 rounded-full">{soldCount}</span>
                   </div>
-                  <div className="max-h-52 overflow-y-auto">
-                    {PLAYERS.filter(p => soldMap[p.id]?.status==='SOLD').map(p => (
-                      <div key={p.id} className="px-4 py-2.5 flex items-center justify-between"
+                  <div className="max-h-40 sm:max-h-52 overflow-y-auto custom-scrollbar">
+                    {PLAYERS.filter(p => soldMap[p.id]?.status==='SOLD').reverse().map(p => (
+                      <div key={p.id} className="px-3 sm:px-4 py-2 sm:py-2.5 flex items-center justify-between"
                            style={{ borderBottom:'1px solid rgba(255,255,255,.03)' }}>
-                        <div>
-                          <div className="text-xs font-medium text-white">{p.name}</div>
-                          <div className="text-[10px] text-gray-600">{soldMap[p.id].franchise}</div>
+                        <div className="min-w-0 pr-2">
+                          <div className="text-[10px] sm:text-xs font-medium text-white truncate">{p.name}</div>
+                          <div className="text-[8px] sm:text-[10px] text-gray-600 truncate">{soldMap[p.id].franchise}</div>
                         </div>
-                        <div className="text-[10px] font-mono font-bold text-cyan-400">{fmt(soldMap[p.id].price)}</div>
+                        <div className="text-[9px] sm:text-[10px] font-mono font-bold text-cyan-400 flex-shrink-0">{fmt(soldMap[p.id].price)}</div>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
 
-              {/* PDF */}
+              {/* PDF button (Hidden on very small screens to save space, but kept for sm) */}
               <button onClick={handlePrint}
-                      className="w-full py-3 rounded-xl text-xs text-gray-500 hover:text-gray-300 transition-all"
+                      className="hidden sm:block w-full py-3 rounded-xl text-xs text-gray-500 hover:text-gray-300 transition-all"
                       style={{ background:'rgba(255,255,255,.03)', border:'1px solid rgba(255,255,255,.06)' }}>
                 📥 Download Team Roster (PDF)
               </button>
@@ -776,50 +851,48 @@ function AuctionView({ as, setAs }) {
 
       {/* ── FRANCHISE LEDGERS ── */}
       {subTab === 'franchise' && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
           {TEAMS.map(t => {
             const d = ledger[t.id];
             const spent = INITIAL_PURSE - d.purseBalance;
             const pct   = ((spent / INITIAL_PURSE) * 100).toFixed(0);
             return (
               <div key={t.id} className="glass rounded-2xl overflow-hidden border border-white/5">
-                <div className="p-5 flex items-center gap-4"
+                <div className="p-4 sm:p-5 flex items-center gap-3 sm:gap-4"
                      style={{ borderBottom:'1px solid rgba(255,255,255,.06)', background:`linear-gradient(90deg,${t.primary}35,transparent)` }}>
-                  <Crest short={t.short} sz={48} />
-                  <div className="min-w-0">
-                    <h4 className="font-bold text-white text-sm leading-tight">{t.name}</h4>
-                    <div className="text-xs font-mono mt-0.5" style={{ color:t.accent }}>{fmt(d.purseBalance)} left</div>
-                    <div className="text-[10px] text-gray-600 mt-0.5">{d.playersAcquired.length} players · {fmt(spent)} spent</div>
+                  <Crest short={t.short} sz={38} />
+                  <div className="min-w-0 flex-1">
+                    <h4 className="font-bold text-white text-xs sm:text-sm leading-tight truncate">{t.name}</h4>
+                    <div className="text-[10px] sm:text-xs font-mono mt-0.5" style={{ color:t.accent }}>{fmt(d.purseBalance)} left</div>
+                    <div className="text-[9px] sm:text-[10px] text-gray-600 mt-0.5">{d.playersAcquired.length} players · {fmt(spent)} spent</div>
                   </div>
                 </div>
 
-                {/* Purse bar */}
-                <div className="px-5 py-3" style={{ borderBottom:'1px solid rgba(255,255,255,.05)' }}>
-                  <div className="flex justify-between font-brand text-[8px] text-gray-600 tracking-wider mb-1.5">
+                <div className="px-4 sm:px-5 py-2.5 sm:py-3" style={{ borderBottom:'1px solid rgba(255,255,255,.05)' }}>
+                  <div className="flex justify-between font-brand text-[7px] sm:text-[8px] text-gray-600 tracking-wider mb-1.5">
                     <span>PURSE UTILISED</span><span>{pct}%</span>
                   </div>
-                  <div className="h-1.5 rounded-full overflow-hidden bg-white/5">
+                  <div className="h-1 sm:h-1.5 rounded-full overflow-hidden bg-white/5">
                     <div className="h-full rounded-full transition-all duration-700"
                          style={{ width:`${pct}%`, background:`linear-gradient(90deg,${t.primary},${t.accent})` }} />
                   </div>
                 </div>
 
-                {/* Roster */}
-                <div className="p-4 max-h-64 overflow-y-auto">
+                <div className="p-3 sm:p-4 max-h-56 sm:max-h-64 overflow-y-auto custom-scrollbar">
                   {d.playersAcquired.length > 0 ? (
-                    <div className="space-y-2">
+                    <div className="space-y-1.5 sm:space-y-2">
                       {d.playersAcquired.map((p,i) => (
-                        <div key={i} className="flex items-center justify-between bg-white/5 rounded-lg px-3 py-2">
-                          <div>
-                            <div className="text-xs font-medium text-white">{p.name}</div>
-                            <div className="text-[10px] text-gray-500">{p.role}</div>
+                        <div key={i} className="flex items-center justify-between bg-white/5 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2">
+                          <div className="min-w-0 pr-2">
+                            <div className="text-[10px] sm:text-xs font-medium text-white truncate">{p.name}</div>
+                            <div className="text-[8px] sm:text-[10px] text-gray-500 truncate">{p.role}</div>
                           </div>
-                          <div className="text-xs font-mono font-bold text-yellow-400">{fmt(p.finalPrice)}</div>
+                          <div className="text-[9px] sm:text-xs font-mono font-bold text-yellow-400 flex-shrink-0">{fmt(p.finalPrice)}</div>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="text-xs text-gray-600 py-4 text-center">No assets acquired yet.</div>
+                    <div className="text-[10px] sm:text-xs text-gray-600 py-3 sm:py-4 text-center">No assets acquired yet.</div>
                   )}
                 </div>
               </div>
@@ -833,38 +906,38 @@ function AuctionView({ as, setAs }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
              style={{ background:'rgba(0,0,0,.88)', backdropFilter:'blur(14px)' }}>
           <div className="glass max-w-sm w-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
-            <div className="p-6" style={{ borderBottom:'1px solid rgba(255,255,255,.07)' }}>
-              <h3 className="font-brand text-[11px] text-white tracking-widest text-center">ASSIGN ACQUISITION</h3>
-              <p className="text-center font-brand text-[9px] text-gray-500 mt-1.5 tracking-wider">
+            <div className="p-5 sm:p-6" style={{ borderBottom:'1px solid rgba(255,255,255,.07)' }}>
+              <h3 className="font-brand text-[10px] sm:text-[11px] text-white tracking-widest text-center">ASSIGN ACQUISITION</h3>
+              <p className="text-center font-brand text-[8px] sm:text-[9px] text-gray-500 mt-1.5 tracking-wider">
                 Hammer at: <span className="text-cyan-400 font-mono font-bold">{fmt(liveBid)}</span>
               </p>
             </div>
-            <div className="p-4 space-y-2">
+            <div className="p-3 sm:p-4 space-y-2">
               {TEAMS.map(t => {
                 const d = ledger[t.id];
                 const insufficient = d.purseBalance < liveBid;
                 return (
                   <button key={t.id} onClick={() => !insufficient && handleHammer(t.id)}
                           disabled={insufficient}
-                          className="w-full py-3 text-sm font-medium rounded-xl px-4 flex items-center justify-between transition-all hover:border-cyan-500/40 disabled:opacity-30 disabled:cursor-not-allowed border"
+                          className="w-full py-2.5 sm:py-3 text-xs sm:text-sm font-medium rounded-xl px-3 sm:px-4 flex items-center justify-between transition-all hover:border-cyan-500/40 disabled:opacity-30 disabled:cursor-not-allowed border"
                           style={{ background:'rgba(255,255,255,.04)', borderColor:'rgba(255,255,255,.07)' }}>
-                    <div className="flex items-center gap-3">
-                      <Crest short={t.short} sz={28} />
-                      <span className="text-white text-sm">{t.name}</span>
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <Crest short={t.short} sz={24} />
+                      <span className="text-white text-xs sm:text-sm">{t.name}</span>
                     </div>
                     <div className="text-right">
-                      <div className="font-mono text-xs" style={{ color:insufficient?'#ef4444':t.accent }}>
+                      <div className="font-mono text-[10px] sm:text-xs" style={{ color:insufficient?'#ef4444':t.accent }}>
                         {fmt(d.purseBalance)}
                       </div>
-                      {insufficient && <div className="font-brand text-[8px] text-red-500 tracking-wider">INSUFFICIENT</div>}
+                      {insufficient && <div className="font-brand text-[7px] sm:text-[8px] text-red-500 tracking-wider">INSUFFICIENT</div>}
                     </div>
                   </button>
                 );
               })}
             </div>
-            <div className="px-6 pb-5 pt-1">
+            <div className="px-5 sm:px-6 pb-4 sm:pb-5 pt-1">
               <button onClick={() => setModal(false)}
-                      className="w-full text-center text-xs text-gray-600 hover:text-gray-400 transition-colors py-2">
+                      className="w-full text-center text-[10px] sm:text-xs text-gray-600 hover:text-gray-400 transition-colors py-2">
                 Cancel
               </button>
             </div>
@@ -879,7 +952,7 @@ function AuctionView({ as, setAs }) {
    APP
 ════════════════════════════════════════ */
 function App() {
-  const [tab, setTab] = useState('about');
+  const [tab, setTab] = useState('home');
   const [as, setAs] = useState(() => {
     const ledger = {};
     TEAMS.forEach(t => { ledger[t.id] = { purseBalance: INITIAL_PURSE, playersAcquired: [] }; });
@@ -891,7 +964,8 @@ function App() {
       <MotionBg />
       <div style={{ position:'relative', zIndex:1, minHeight:'100vh', display:'flex', flexDirection:'column' }}>
         <Nav tab={tab} setTab={setTab} />
-        <main className="flex-1 pb-16">
+        <main className="flex-1 pb-10 sm:pb-16">
+          {tab==='home'      && <HeroView setTab={setTab} />}
           {tab==='about'     && <AboutView />}
           {tab==='players'   && <PlayersView />}
           {tab==='teams'     && <TeamsView />}
