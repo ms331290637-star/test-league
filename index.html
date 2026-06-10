@@ -27,7 +27,7 @@
     }
     .bg-slide {
       position: absolute; top: -15%; left: -15%; width: 130%; height: 130%;
-      background-size: cover; background-position: center;
+      background-color: #020204; background-size: cover; background-position: center;
       opacity: 0;
       filter: brightness(18%) contrast(135%) saturate(60%) blur(1.5px);
       transition: opacity 2.8s cubic-bezier(0.4,0,0.2,1);
@@ -53,10 +53,11 @@
       .orb-cyan { width:52vw; height:52vw; left:-6%; bottom:-10%; }
     }
 
-    /* ── DYNAMIC HERO BACKGROUND ENGINE (image 1.webp) ── */
+    /* ── DYNAMIC HERO BACKGROUND ENGINE ── */
     .hero-field-motion {
       position: absolute;
       top: -10%; left: -10%; width: 120%; height: 120%;
+      background-color: #020204;
       background-image: url('image 1.webp');
       background-size: cover;
       background-position: center 40%;
@@ -130,13 +131,6 @@
     }
     .bid-flash { animation:bidFlash .75s ease-out forwards; }
 
-    @keyframes soldIn {
-      0%   { transform:rotate(-15deg) scale(.1); opacity:0; }
-      65%  { transform:rotate(-15deg) scale(1.12); opacity:1; }
-      100% { transform:rotate(-15deg) scale(1); opacity:1; }
-    }
-    .sold-in { animation:soldIn .55s cubic-bezier(.34,1.56,.64,1) forwards; }
-
     /* ── MISC ── */
     .fade-up { opacity:0; transform:translateY(26px); animation:fu .75s cubic-bezier(.16,1,.3,1) forwards; }
     @keyframes fu { to{opacity:1;transform:translateY(0)} }
@@ -173,52 +167,19 @@
 const { useState, useEffect, useRef, useCallback } = React;
 
 /* ─────────────────────────────────────────────
-   STATIC DATA POOLS (CLEAN PRIMITIVES FOR ZERO GLITCHES)
+   STYLING CONFIG MAPS
 ───────────────────────────────────────────── */
-const INITIAL_PURSE = 10000000; 
-
-const PLAYERS = [
-  { id:1, name:"Saad",              role:"Batsman",       photo:"https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=300&auto=format&fit=crop", bio:"An incredibly technical opening batsman equipped with supreme patience and an elite cover drive. A proven cornerstone player.", stats:{ m:42, hs:134, sr:138.2 }, base:500000, grad:"from-neutral-900 to-cyan-950" },
-  { id:2, name:"Muzzumil",          role:"All-Rounder",   photo:"https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=300&auto=format&fit=crop", bio:"An explosive, clean-hitting match winner whose clutch power hitting and brisk medium pace make him highly coveted.", stats:{ m:48, hs:94,  sr:158.4 }, base:750000, grad:"from-neutral-900 to-purple-950" },
-  { id:3, name:"Sajjad",            role:"Fast Bowler",   photo:"https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=300&auto=format&fit=crop", bio:"A dangerous asset with the new ball, consistently hitting unplayable lengths and generating lethal late swing.", stats:{ m:36, hs:18,  sr:92.5  }, base:400000, grad:"from-neutral-900 to-emerald-950" },
-  { id:4, name:"Ayaan",             role:"Wicket-Keeper", photo:"https://images.unsplash.com/photo-1628157582853-a796fa650a6a?q=80&w=300&auto=format&fit=crop", bio:"Equipped with lightning reflexes behind the stumps and a lethal ability to execute destructive lower-order counter attacks.", stats:{ m:54, hs:82,  sr:146.1 }, base:450000, grad:"from-neutral-900 to-amber-950" },
-  { id:5, name:"Anas",              role:"Spin Bowler",   photo:"https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?q=80&w=300&auto=format&fit=crop", bio:"A highly deceptive maestro of spin, utilizing massive variations and exceptional flight control to lock down opponents.", stats:{ m:40, hs:28,  sr:102.3 }, base:350000, grad:"from-neutral-900 to-teal-950" },
-  { id:6, name:"Huzaifa",           role:"Batsman",       photo:"https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?q=80&w=300&auto=format&fit=crop", bio:"A high-caliber anchor player capable of dismantling spin options effortlessly and constructing massive, safe partnerships.", stats:{ m:31, hs:112, sr:131.7 }, base:550000, grad:"from-neutral-900 to-rose-950" },
-  { id:7, name:"Saqib",             role:"All-Rounder",   photo:"https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=300&auto=format&fit=crop", bio:"A complete tactical utility asset, delivering aggressive middle-order contributions alongside high-IQ situational bowling.", stats:{ m:50, hs:87,  sr:162.9 }, base:650000, grad:"from-neutral-900 to-orange-950" },
-  { id:8, name:"Rumman",            role:"Finisher",      photo:"https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=300&auto=format&fit=crop", bio:"An absolute ice-cool finisher capable of engineering impossible victories out of high-pressure death over equations.", stats:{ m:38, hs:71,  sr:179.4 }, base:600000, grad:"from-neutral-900 to-red-950" },
-  { id:9, name:"Abeer",             role:"Fast Bowler",   photo:"https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?q=80&w=300&auto=format&fit=crop", bio:"A pure enforcer specialized in targeting deep blockholes and hitting heavy decks with relentless mechanical precision.", stats:{ m:29, hs:12,  sr:88.1  }, base:400000, grad:"from-neutral-900 to-slate-950" },
-  { id:10,name:"Kabeer",            role:"Batsman",       photo:"https://images.unsplash.com/photo-1566492031773-4f4e44671857?q=80&w=300&auto=format&fit=crop", bio:"A wildly dynamic, highly inventive stroke-player utilizing unorthodox boundary targets to create immediate defensive crises.", stats:{ m:34, hs:98,  sr:149.3 }, base:500000, grad:"from-neutral-900 to-yellow-950" }
-];
-
-const TEAMS = [
-  { id:1, name:"Team Royals", short:"TR", tagline:"Reign Supreme.", primary:"#4c0519", accent:"#fbbf24", history:"The crown jewel of the league. Team Royals built their identity on elegance and dominance. Boasting the most consistent batting lineup in history, their philosophy of aggressive all-out attacking cricket has never wavered. They remain the benchmark franchise every rival strives to match.", wins:24, losses:10, titles:2, wl:[1,1,0,1,1,0,1,1,1,0,1,1] },
-  { id:2, name:"Team Red Eagles", short:"RE", tagline:"Soar Above.", primary:"#1a0505", accent:"#ef4444", history:"Team Red Eagles are synonymous with dramatic never-say-die victories. Renowned for their fierce fast-bowling cartels and electrifying fielding, they have built their identity on backing the impossible. Their robust scouting network has produced a stream of breakout talent.", wins:20, losses:14, titles:1, wl:[0,1,1,0,1,1,0,0,1,1,1,0] },
-  { id:3, name:"Team Kashmir Warriors", short:"KW", tagline:"Fearless & Fierce.", primary:"#062f17", accent:"#34d399", history:"Widely regarded as the most tactically astute franchise in the competition. The Warriors blend raw, fearless young talent from the mountains with seasoned experience. Their home surface is the most feared in the league and their preparation is the envy of rival coaching staffs.", wins:18, losses:16, titles:1, wl:[0,0,1,1,1,0,1,1,0,1,0,1] },
-];
-
-const CHAMPS = [
-  { season:4, year:2023, winner:"Team Royals", wS:"TR", runnerUp:"Team Red Eagles", result:"Royals won by 7 wickets", star:"Muzzumil", starNote:"524 runs & 18 wkts in the tournament", highlight:"A dominant campaign setting a league NRR record. Ten wins from twelve games — a masterclass in total cricket.", bg:"rgba(76,5,25,0.28)", border:"rgba(251,191,36,0.22)" },
-  { season:3, year:2022, winner:"Team Kashmir Warriors", wS:"KW", runnerUp:"Team Royals", result:"Kashmir won by 18 runs", star:"Saqib", starNote:"8 wickets in the final week alone", highlight:"Maiden title. The Warriors' bowling attack was unplayable on the turner, restricting Royals to 30 runs under par.", bg:"rgba(6,47,23,0.28)", border:"rgba(16,185,129,0.22)" },
-  { season:2, year:2021, winner:"Team Red Eagles", wS:"RE", runnerUp:"Team Kashmir Warriors", result:"Eagles won by 4 wickets", star:"Saad", starNote:"197* in the playoffs — a record", highlight:"The most iconic chase in league history. Needing 12 off the last over, Eagles pulled off the improbable and cemented their legacy.", bg:"rgba(10,10,10,0.45)", border:"rgba(239,68,68,0.22)" },
-];
-
-const HISTORY = [
-  { year:2019, title:"The Inception", desc:"Test League was conceptualized by Talha Riaz to create an elite, highly competitive franchise cricket ecosystem where raw athletic supremacy meets high-stakes operational planning." },
-  { year:2020, title:"Inaugural Draft", desc:"The first player auction drafted 10 contracted athletes. Team Royals claimed the inaugural trophy in a packed, electric atmosphere that set the tone for seasons to come." },
-  { year:2023, title:"The Invitation Era", desc:"TEST LEAGUE elevated into an ultra-exclusive private tournament circuit. Admission guidelines were tightened to feature only verified, premier-tier athletic profiles. A new era of excellence began." },
-];
-
-const BG = [
-  "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?q=80&w=2000&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1531415074968-036ba1b575da?q=80&w=2000&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1587280501635-68a0e82cd5ff?q=80&w=2000&auto=format&fit=crop",
-];
-
-const fmt   = n  => `₹${n.toLocaleString('en-IN')}`;
-const incr  = v  => v < 1000000 ? 50000 : v < 3000000 ? 100000 : 200000;
+const ROLE_BADGE = {
+  'Batsman':       'bg-sky-500/20 text-sky-200 border-sky-500/40',
+  'All-Rounder':   'bg-violet-500/20 text-violet-200 border-violet-500/40',
+  'Fast Bowler':   'bg-emerald-500/20 text-emerald-200 border-emerald-500/40',
+  'Wicket-Keeper': 'bg-orange-500/20 text-orange-200 border-orange-500/40',
+  'Spin Bowler':   'bg-teal-500/20 text-teal-200 border-teal-500/40',
+  'Finisher':      'bg-red-500/20 text-red-200 border-red-500/40',
+};
 
 /* ─────────────────────────────────────────────
-   COMPACT VECTOR CRESTS HOISTED
+   VECTOR TEAM CRESTS
 ───────────────────────────────────────────── */
 function Crest({ short, sz = 80 }) {
   if (short === 'TR') {
@@ -252,6 +213,51 @@ function Crest({ short, sz = 80 }) {
 }
 
 /* ─────────────────────────────────────────────
+   LEAGUE CORE DATA SCRIPT
+───────────────────────────────────────────── */
+const INITIAL_PURSE = 10000000; 
+
+const PLAYERS = [
+  { id:1, name:"Saad",              role:"Batsman",       photo:"https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=300&auto=format&fit=crop", bio:"An incredibly technical opening batsman equipped with supreme patience and an elite cover drive. A proven cornerstone player.", stats:{ m:42, hs:134, sr:138.2 }, base:500000, grad:"from-neutral-900 to-cyan-950" },
+  { id:2, name:"Muzzumil",          role:"All-Rounder",   photo:"https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=300&auto=format&fit=crop", bio:"An explosive, clean-hitting match winner whose clutch power hitting and brisk medium pace make him highly coveted.", stats:{ m:48, hs:94,  sr:158.4 }, base:750000, grad:"from-neutral-900 to-purple-950" },
+  { id:3, name:"Sajjad",            role:"Fast Bowler",   photo:"https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=300&auto=format&fit=crop", bio:"A dangerous asset with the new ball, consistently hitting unplayable lengths and generating lethal late swing.", stats:{ m:36, hs:18,  sr:92.5  }, base:400000, grad:"from-neutral-900 to-emerald-950" },
+  { id:4, name:"Ayaan",             role:"Wicket-Keeper", photo:"https://images.unsplash.com/photo-1628157582853-a796fa650a6a?q=80&w=300&auto=format&fit=crop", bio:"Equipped with lightning reflexes behind the stumps and a lethal ability to execute destructive lower-order counter attacks.", stats:{ m:54, hs:82,  sr:146.1 }, base:450000, grad:"from-neutral-900 to-amber-950" },
+  { id:5, name:"Anas",              role:"Spin Bowler",   photo:"https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?q=80&w=300&auto=format&fit=crop", bio:"A highly deceptive maestro of spin, utilizing massive variations and exceptional flight control to lock down opponents.", stats:{ m:40, hs:28,  sr:102.3 }, base:350000, grad:"from-neutral-900 to-teal-950" },
+  { id:6, name:"Huzaifa",           role:"Batsman",       photo:"https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?q=80&w=300&auto=format&fit=crop", bio:"A high-caliber anchor player capable of dismantling spin options effortlessly and constructing massive, safe partnerships.", stats:{ m:31, hs:112, sr:131.7 }, base:550000, grad:"from-neutral-900 to-rose-950" },
+  { id:7, name:"Saqib",             role:"All-Rounder",   photo:"https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=300&auto=format&fit=crop", bio:"A complete tactical utility asset, delivering aggressive middle-order contributions alongside high-IQ situational bowling.", stats:{ m:50, hs:87,  sr:162.9 }, base:650000, grad:"from-neutral-900 to-orange-950" },
+  { id:8, name:"Rumman",            role:"Finisher",      photo:"https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=300&auto=format&fit=crop", bio:"An absolute ice-cool finisher capable of engineering impossible victories out of high-pressure death over equations.", stats:{ m:38, hs:71,  sr:179.4 }, base:600000, grad:"from-neutral-900 to-red-950" },
+  { id:9, name:"Abeer",             role:"Fast Bowler",   photo:"https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?q=80&w=300&auto=format&fit=crop", bio:"A pure enforcer specialized in targeting deep blockholes and hitting heavy decks with relentless mechanical precision.", stats:{ m:29, hs:12,  sr:88.1  }, base:400000, grad:"from-neutral-900 to-slate-950" },
+  { id:10,name:"Kabeer",            role:"Batsman",       photo:"https://images.unsplash.com/photo-1566492031773-4f4e44671857?q=80&w=300&auto=format&fit=crop", bio:"A wildly dynamic, highly inventive stroke-player utilizing unorthodox boundary targets to create immediate defensive crises.", stats:{ m:34, hs:98,  sr:149.3 }, base:500000, grad:"from-neutral-900 to-yellow-950" }
+];
+
+const TEAMS = [
+  { id:1, name:"Team Royals", short:"TR", tagline:"Reign Supreme.", primary:"#4c0519", accent:"#fbbf24", history:"The crown jewel of the league. Team Royals built their identity on elegance and dominance. Boasting the most consistent batting lineup in history, their philosophy of aggressive all-out attacking cricket has never wavered. They remain the benchmark franchise.", wins:24, losses:10, titles:2, wl:[1,1,0,1,1,0,1,1,1,0,1,1] },
+  { id:2, name:"Team Red Eagles", short:"RE", tagline:"Soar Above.", primary:"#1a0505", accent:"#ef4444", history:"Team Red Eagles are synonymous with dramatic never-say-die victories. Renowned for their fierce fast-bowling cartels and electrifying fielding, they have built their identity on backing the impossible. Their robust scouting network has produced breakout talent.", wins:20, losses:14, titles:1, wl:[0,1,1,0,1,1,0,0,1,1,1,0] },
+  { id:3, name:"Team Kashmir Warriors", short:"KW", tagline:"Fearless & Fierce.", primary:"#062f17", accent:"#34d399", history:"Widely regarded as the most tactically astute franchise in the competition. The Warriors blend raw, fearless young talent from the mountains with seasoned experience. Their home surface is the most feared in the league.", wins:18, losses:16, titles:1, wl:[0,0,1,1,1,0,1,1,0,1,0,1] },
+];
+
+const CHAMPS = [
+  { season:4, year:2023, winner:"Team Royals", wS:"TR", runnerUp:"Team Red Eagles", result:"Royals won by 7 wickets", star:"Muzzumil", starNote:"524 runs & 18 wkts in the tournament", highlight:"A dominant campaign setting a league NRR record. Ten wins from twelve games — a masterclass in total cricket.", bg:"rgba(76,5,25,0.28)", border:"rgba(251,191,36,0.22)" },
+  { season:3, year:2022, winner:"Team Kashmir Warriors", wS:"KW", runnerUp:"Team Royals", result:"Kashmir won by 18 runs", star:"Saqib", starNote:"8 wickets in the final week alone", highlight:"Maiden title. The Warriors' bowling attack was unplayable on the turner, restricting Royals to 30 runs under par.", bg:"rgba(6,47,23,0.28)", border:"rgba(16,185,129,0.22)" },
+  { season:2, year:2021, winner:"Team Red Eagles", wS:"RE", runnerUp:"Team Kashmir Warriors", result:"Eagles won by 4 wickets", star:"Saad", starNote:"197* in the playoffs — a record", highlight:"The most iconic chase in league history. Needing 12 off the last over, Eagles pulled off the improbable and cemented their legacy.", bg:"rgba(10,10,10,0.45)", border:"rgba(239,68,68,0.22)" },
+];
+
+const HISTORY = [
+  { year:2019, title:"The Inception", desc:"Test League was conceptualized by Talha Riaz to create an elite, highly competitive franchise cricket ecosystem where raw athletic supremacy meets high-stakes operational planning." },
+  { year:2020, title:"Inaugural Draft", desc:"The first player auction drafted 10 contracted athletes. Team Royals claimed the inaugural trophy in a packed, electric atmosphere that set the tone for seasons to come." },
+  { year:2023, title:"The Invitation Era", desc:"TEST LEAGUE elevated into an ultra-exclusive private tournament circuit. Admission guidelines were tightened to feature only verified, premier-tier athletic profiles. A new era of excellence began." },
+];
+
+const BG = [
+  "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1531415074968-036ba1b575da?q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1587280501635-68a0e82cd5ff?q=80&w=2000&auto=format&fit=crop",
+];
+
+const fmt   = n  => `₹${n.toLocaleString('en-IN')}`;
+const incr  = v  => v < 1000000 ? 50000 : v < 3000000 ? 100000 : 200000;
+
+/* ─────────────────────────────────────────────
    MOTION BACKDROP CONTROLLER
 ───────────────────────────────────────────── */
 function MotionBg() {
@@ -272,7 +278,7 @@ function MotionBg() {
 }
 
 /* ─────────────────────────────────────────────
-   CAPSULE NAV ENGINE[cite: 2]
+   CAPSULE NAV ENGINE
 ───────────────────────────────────────────── */
 function Nav({ tab, setTab }) {
   const tabs = [
@@ -330,7 +336,7 @@ function HeroView({ setTab }) {
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-yellow-200 to-amber-600">LEAGUE</span>
         </h1>
         <p className="text-gray-200 font-light tracking-wide max-w-xl mx-auto text-xs sm:text-sm md:text-base mb-10 sm:mb-12 bg-black/40 p-4 rounded-xl backdrop-blur-sm border border-white/5 leading-relaxed">
-          The absolute pinnacle of private franchise cricket. Elite rosters, unlimited stakes, and unparalleled operational prestige managed by Talha Riaz.
+          The absolute pinnacle of private franchise cricket. Elite rosters, unlimited stakes, and unparalleled operational prestige managed by Talha Riaz and Muhammad Muzammil.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full max-w-md mx-auto px-4 sm:px-0">
           <button onClick={() => setTab('auction')} className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-700 text-black font-brand font-bold text-[10px] sm:text-xs text-white tracking-widest hover:scale-105 transition-transform shadow-[0_10px_25px_rgba(6,182,212,0.4)] rounded-xl">
@@ -346,7 +352,7 @@ function HeroView({ setTab }) {
 }
 
 /* ─────────────────────────────────────────────
-   LEGACY OVERVIEW VIEW (ABOUT / FIXED MANAGEMENT DECK)[cite: 2]
+   LEGACY OVERVIEW VIEW (ABOUT / MANAGEMENT)
 ───────────────────────────────────────────── */
 function AboutView() {
   return (
@@ -369,7 +375,7 @@ function AboutView() {
             <div className="p-6 sm:p-8 md:p-10 md:w-7/12 flex flex-col justify-center">
               <span className="font-brand text-[8px] sm:text-[9px] text-yellow-500 tracking-[0.2em] sm:tracking-[0.3em] block mb-2 sm:mb-3">FOUNDER & EXECUTIVE LEAGUE OWNER</span>
               <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-3 sm:mb-4">Talha Riaz</h2>
-              <div className="inline-flex items-center gap-2 bg-cyan-500/10 text-cyan-400 text-[10px] sm:text-xs tracking-wider uppercase font-semibold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-cyan-500/20 mb-5 sm:mb-6 w-max">A Right-Arm Fast Bowler</div>
+              <div className="inline-flex items-center gap-2 bg-cyan-500/10 text-cyan-400 text-[10px] sm:text-xs tracking-wider uppercase font-semibold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-cyan-500/20 mb-5 sm:mb-6 w-max">⚡ Right-Arm Fast Bowler</div>
               <p className="text-gray-400 text-sm sm:text-base leading-relaxed italic font-light">"TEST LEAGUE was structured to fulfill a singular commitment: designing a private, prestigious matrix where raw athletic supremacy meets high-stakes operational planning. We ensure elite visibility across every single delivery."</p>
             </div>
           </div>
@@ -386,7 +392,7 @@ function AboutView() {
             <div className="p-6 sm:p-8 md:p-10 md:w-7/12 flex flex-col justify-center">
               <span className="font-brand text-[8px] sm:text-[9px] text-cyan-400 tracking-[0.2em] sm:tracking-[0.3em] block mb-2 sm:mb-3">GENERAL MANAGER</span>
               <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-3 sm:mb-4">Muhammad Muzammil</h2>
-              <div className="inline-flex items-center gap-2 bg-violet-500/10 text-violet-400 text-[10px] sm:text-xs tracking-wider uppercase font-semibold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-violet-500/20 mb-5 sm:mb-6 w-max">🏏 An All-Rounder</div>
+              <div className="inline-flex items-center gap-2 bg-violet-500/10 text-violet-400 text-[10px] sm:text-xs tracking-wider uppercase font-semibold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-violet-500/20 mb-5 sm:mb-6 w-max">🏏 All-Rounder</div>
               <p className="text-gray-400 text-sm sm:text-base leading-relaxed italic font-light">"Commanding structural integration across operations, player coordination, and franchise relations. Bringing elite all-round on-field expertise to executive system governance to preserve absolute competitive parity across the draft board."</p>
             </div>
           </div>
@@ -418,7 +424,7 @@ function AboutView() {
 }
 
 /* ─────────────────────────────────────────────
-   PLAYER DIRECTORY ROSTER INDEX[cite: 2]
+   ROSTER DIRECTORY VIEW
 ───────────────────────────────────────────── */
 function PlayerCard({ p }) {
   return (
@@ -459,7 +465,7 @@ function PlayersView() {
 }
 
 /* ─────────────────────────────────────────────
-   FRANCHISE FRONTS CORES[cite: 2]
+   FRANCHISE FRONTS
 ───────────────────────────────────────────── */
 function WLBar({ wl }) {
   return (
@@ -510,7 +516,7 @@ function TeamsView() {
 }
 
 /* ─────────────────────────────────────────────
-   CHAMPIONS ARCHIVE HISTORICAL SHEET[cite: 2]
+   CHAMPIONS ARCHIVE
 ───────────────────────────────────────────── */
 function ChampionsView() {
   return (
@@ -550,7 +556,7 @@ function ChampionsView() {
 }
 
 /* ─────────────────────────────────────────────
-   AUCTION PLATFORM BOARD SYSTEM
+   AUCTION — ADMINISTRATIVE DESK PLATFORM
 ───────────────────────────────────────────── */
 function AuctionView({ as, setAs }) {
   const [subTab,   setSubTab]   = useState('block');
@@ -706,14 +712,14 @@ function AuctionView({ as, setAs }) {
                 <div className="font-display font-black text-4xl sm:text-5xl tracking-tight break-all" style={{ color:'#22d3ee', lineHeight:1 }}>{fmt(liveBid)}</div>
               </div>
 
-              <button onClick={handleBid} disabled={isSold || isPassed} className="w-full py-3.5 sm:py-4 rounded-xl font-brand text-[10px] sm:text-[11px] text-black tracking-widest font-bold disabled:opacity-20" style={{ background='linear-gradient(135deg,#06b6d4,#0284c7)' }}>⬆ COMMAND RAISE</button>
+              <button onClick={handleBid} disabled={isSold || isPassed} className="w-full py-3.5 sm:py-4 rounded-xl font-brand text-[10px] sm:text-[11px] text-black tracking-widest font-bold disabled:opacity-20" style={{ background:'linear-gradient(135deg,#06b6d4,#0284c7)' }}>⬆ COMMAND RAISE</button>
               <div className="grid grid-cols-2 gap-2 sm:gap-3">
                 <button onClick={() => setModal(true)} disabled={isSold || isPassed} className="py-3 sm:py-3.5 rounded-xl font-brand text-[9px] sm:text-[10px] tracking-widest border border-green-500/30 text-green-400 disabled:opacity-20">🔨 HAMMER</button>
                 <button onClick={handlePass} disabled={isSold || isPassed} className="py-3 sm:py-3.5 rounded-xl font-brand text-[9px] sm:text-[10px] tracking-widest border border-red-500/30 text-red-400 disabled:opacity-20">PASS</button>
               </div>
 
               {(isSold || isPassed) && (
-                <button onClick={() => setCurBid(null)||setIsSold(false)||setWinnerId(null)||setIsPassed(false)} className="w-full py-3 sm:py-3.5 rounded-xl font-brand text-[9px] sm:text-[10px] text-white tracking-widest mt-1" style={{ background:'rgba(255,255,255,.05)', border:'1px solid rgba(255,255,255,.09)' }}>ADVANCE SEQUENCE ⏭</button>
+                <button onClick={handleNext} className="w-full py-3 sm:py-3.5 rounded-xl font-brand text-[9px] sm:text-[10px] text-white tracking-widest mt-1" style={{ background:'rgba(255,255,255,.05)', border:'1px solid rgba(255,255,255,.09)' }}>ADVANCE SEQUENCE ⏭</button>
               )}
 
               {soldCount > 0 && (
@@ -775,7 +781,7 @@ function AuctionView({ as, setAs }) {
           <div className="glass max-w-sm w-full rounded-2xl border border-white/10 p-4">
             <h3 className="font-brand text-[10px] text-white tracking-widest text-center mb-4">ASSIGN ACQUISITION</h3>
             {TEAMS.map(t => (
-              <button key={t.id} onClick={() => handleHammer(t.id)} disabled={ledger[t.id].purseBalance < liveBid} className="w-full py-3 font-medium border rounded-xl px-4 flex justify-between items-center bg-white/5 mb-2 disabled:opacity-20 border-white/10">
+              <button key={t.id} onClick={() => handleHammer(t.id)} disabled={ledger[t.id].purseBalance < liveBid} className="w-full py-3 font-medium border rounded-xl px-4 flex justify-between items-center bg-white/5 mb-2 disabled:opacity-20 border-white/10 hover:border-cyan-500/50">
                 <span className="text-white text-xs">{t.name}</span>
                 <span className="font-mono text-xs text-yellow-400">{fmt(ledger[t.id].purseBalance)}</span>
               </button>
@@ -789,7 +795,7 @@ function AuctionView({ as, setAs }) {
 }
 
 /* ─────────────────────────────────────────────
-   GLOBAL APP CONTAINER EXECUTION LAYER[cite: 2]
+   GLOBAL APP CONTAINER EXECUTION LAYER
 ───────────────────────────────────────────── */
 function App() {
   const [tab, setTab] = useState('home');
